@@ -13,9 +13,9 @@
 
 
 /*
- * Handles a directive, returns the
- * new location in the file
- */
+Handles a directive, returns the
+new location in the file
+*/
 
 char *handle_directive (const char *ptr) {
 	static const char *dirs[] = {"db", "dw", "end", "org", "byte", "word", "fill", "block", "addinstr",
@@ -46,19 +46,19 @@ char *handle_directive (const char *ptr) {
 	ptr = skip_whitespace (name_end);
 
 	switch (dir) {
-		case 0: //DB
-		case 4: //BYTE
+	case 0: //DB
+	case 4: //BYTE
 		{
 			ptr = parse_emit_string (ptr, ES_BYTE, NULL);
 			break;
 		}
-		case 1: //DW
-		case 5: //WORD
+	case 1: //DW
+	case 5: //WORD
 		{
 			ptr = parse_emit_string (ptr, ES_WORD, NULL);
 			break;
 		}
-		case 3: //ORG
+	case 3: //ORG
 		{
 			int value;
 			char value_str[256] = "";
@@ -83,8 +83,8 @@ char *handle_directive (const char *ptr) {
 			}
 			break;
 		}
-		case 6: //FILL
-		case 7: //BLOCK
+	case 6: //FILL
+	case 7: //BLOCK
 		{
 			int size, fill_value;
 			char szSize[256], szFill[256];
@@ -125,7 +125,7 @@ char *handle_directive (const char *ptr) {
 			//listing_on = old_listing_on;
 			break;
 		}
-		case 8: //ADDINSTR
+	case 8: //ADDINSTR
 		{
 			instr *instr = (struct _instr *) malloc (sizeof (struct _instr));
 			char word[256];
@@ -148,11 +148,11 @@ char *handle_directive (const char *ptr) {
 
 			// Instruction data
 			if (!read_expr (&ptr, word, " \t")) goto addinstr_fail;
-	        conv_hex (word, word + strlen (word), &result);
-	        instr->instr_size = strlen (word) / 2;
+			conv_hex (word, word + strlen (word), &result);
+			instr->instr_size = strlen (word) / 2;
 
-	        for (j = instr->instr_size - 1; j >= 0; j--)
-	        	instr->instr_data[instr->instr_size - j - 1] = (result >> (j * 8)) & 0xFF;
+			for (j = instr->instr_size - 1; j >= 0; j--)
+				instr->instr_data[instr->instr_size - j - 1] = (result >> (j * 8)) & 0xFF;
 
 
 			// Size
@@ -176,13 +176,13 @@ char *handle_directive (const char *ptr) {
 			size_left = instr->size - instr->instr_size;
 			while ((i = strcspn (&instr->args[base], "*")) + base != strlen (instr->args)) {
 				switch (size_left - instr->has_end_data) {
-					case 2:	((char *) instr->args)[base+i] = '*'; break;
-					case 1: ((char *) instr->args)[base+i] = '&'; break;
-					default:
-						((char *) instr->args)[base+i] = '&'; break;
-						//show_error ("Invalid wildcard type in ADDRINSTR");
-						//goto addinstr_fail;
-						break;
+				case 2:	((char *) instr->args)[base+i] = '*'; break;
+				case 1: ((char *) instr->args)[base+i] = '&'; break;
+				default:
+					((char *) instr->args)[base+i] = '&'; break;
+					//show_error ("Invalid wildcard type in ADDRINSTR");
+					//goto addinstr_fail;
+					break;
 				}
 				size_left -= 2;
 				base += i + 1;
@@ -223,7 +223,7 @@ addinstr_fail:
 			ptr = skip_to_line_end(ptr);
 			break;
 		}
-		case 9: //ECHO
+	case 9: //ECHO
 		{
 			if (ptr[0] == '>')
 			{
@@ -247,7 +247,7 @@ addinstr_fail:
 				// Is the filename given a macro?
 				if ((define = search_defines (filename)))
 					strncpy (filename, skip_whitespace(define->contents), sizeof (filename));
-					
+
 				reduce_string(filename);
 
 				if (is_abs_path(filename)) {
@@ -309,7 +309,7 @@ addinstr_fail:
 			}
 			break;
 		}
-		case 10: //ERROR
+	case 10: //ERROR
 		{
 			expand_buf_t *eb = eb_init(64);
 			ptr = parse_emit_string(ptr, ES_FCREATE, eb);
@@ -321,7 +321,7 @@ addinstr_fail:
 			free(error_str);
 			break;
 		}
-		case 11: //LIST
+	case 11: //LIST
 		{
 			//if listing was off already, then the listing
 			// for the start of this line wouldn't have been
@@ -332,7 +332,7 @@ addinstr_fail:
 			listing_on = true;
 			break;
 		}
-		case 12: //NOLIST
+	case 12: //NOLIST
 		{
 			//if listing is on, then it would've written
 			// the starting stuff for this line already,
@@ -342,7 +342,7 @@ addinstr_fail:
 			listing_on = false;
 			break;
 		}
-		case 13: //EQU
+	case 13: //EQU
 		{
 			// Finally, a proper .equ!
 			int value;
@@ -358,7 +358,7 @@ addinstr_fail:
 			}
 			break;
 		}
-		case 14: //SHOW
+	case 14: //SHOW
 		{
 			char name[256];
 			define_t *define;
@@ -375,7 +375,7 @@ addinstr_fail:
 			}
 			break;
 		}
-		case 15: //OPTION
+	case 15: //OPTION
 		{
 			char *word = NULL;
 			arg_context_t context = ARG_CONTEXT_INITIALIZER;
@@ -390,12 +390,12 @@ addinstr_fail:
 				{
 					expr++;
 				}
-				
+
 				if (!(isalpha(name[0]))) {
 					SetLastSPASMError(SPASM_ERR_INVALID_OPTION, name);
 					return (char *) ptr;
 				}
-				
+
 				if (is_end_of_code_line (skip_whitespace (expr)))
 					expr = strdup ("1");
 				else {
@@ -418,7 +418,7 @@ addinstr_fail:
 			}
 			break;
 		}
-		case 16: //SEEK
+	case 16: //SEEK
 		{
 			int value;
 			char value_str[256];
@@ -432,7 +432,7 @@ addinstr_fail:
 				show_fatal_error ("Seek location %d out of bounds", value);
 			else if (value < program_counter && (value - (int) program_counter + (out_ptr - output_contents) < 0))
 				show_fatal_error ("Seek value %d too small", value);
-		
+
 			out_ptr += value - ((int) program_counter);
 			//printf("base: %p; ptr: %p\n", output_contents, out_ptr);
 			program_counter = value;
@@ -445,8 +445,8 @@ addinstr_fail:
 
 
 /*
- * Shows contents of a #define
- */
+Shows contents of a #define
+*/
 
 void show_define (define_t *define) {
 	WORD console_attrib = save_console_attributes();
@@ -481,11 +481,11 @@ void show_define (define_t *define) {
 
 
 /*
- * Parses a list of values and strings,
- * either prints them to the output,
- * writes them to a file, or adds them
- * to the program output
- */
+Parses a list of values and strings,
+either prints them to the output,
+writes them to a file, or adds them
+to the program output
+*/
 
 char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 	static int level = 0;
@@ -505,7 +505,7 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 			char *next = next_expr (word, EXPR_DELIMS);
 			if (*next != '\0') 
 				goto echo_error;
-			
+
 			reduce_string (word);
 			if (type == ES_ECHO)
 			{
@@ -521,8 +521,8 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 				for (i = 0; word[i]; i++) {
 					if ((mode & MODE_NORMAL) || (mode & MODE_LIST))
 						write_out (word[i]);
-	                stats_datasize++;
-	                program_counter++;
+					stats_datasize++;
+					program_counter++;
 				}
 			}
 
@@ -535,7 +535,7 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 			{
 				switch (type) 
 				{
-					case ES_ECHO: 
+				case ES_ECHO: 
 					{
 						if (echo_target != NULL)
 						{
@@ -544,7 +544,7 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 						break;
 					}
 #ifdef USE_BUILTIN_FCREATE
-					case ES_FCREATE:
+				case ES_FCREATE:
 					{
 						char buffer[256];
 						sprintf_s(buffer, "%d", value);
@@ -552,19 +552,19 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 						break;
 					}
 #endif
-					case ES_BYTE: 
+				case ES_BYTE: 
 					{
 						write_arg(value, ARG_NUM_8, 0);
-		                stats_datasize++;
-		                program_counter++;
-		                break;
+						stats_datasize++;
+						program_counter++;
+						break;
 					}
-					case ES_WORD:
+				case ES_WORD:
 					{
-		                write_arg(value, ARG_NUM_16, 0);
-		                stats_datasize+=2;
-		                program_counter+=2;
-		                break;
+						write_arg(value, ARG_NUM_16, 0);
+						stats_datasize+=2;
+						program_counter+=2;
+						break;
 					}
 				}
 
@@ -579,16 +579,16 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 				case ES_BYTE: 
 					{
 						add_pass_two_expr(word, ARG_NUM_8, 0);
-		                stats_datasize++;
-		                program_counter++;
-		                break;
+						stats_datasize++;
+						program_counter++;
+						break;
 					}
 				case ES_WORD:
 					{
-		                add_pass_two_expr(word, ARG_NUM_16, 0);
-		                stats_datasize+=2;
-		                program_counter+=2;
-		                break;
+						add_pass_two_expr(word, ARG_NUM_16, 0);
+						stats_datasize+=2;
+						program_counter+=2;
+						break;
 					}
 				}
 
@@ -606,25 +606,25 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 				//printf("Looking up %s\n", name);
 				next = name_end;
 				read_expr (&next, NULL, ")");
-				
+
 				if (*next != '\0')
 					goto echo_error;
 
 				if ((define = search_defines (name))) {
 					char *expr;
 					list_t *args = NULL;
-	
+
 					//handle defines
 					if (define->contents == NULL)
 					{
 						SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, name);
 					}
-					
+
 					if (*(name_end - 1) == '(') name_end--;
 					name_end = parse_args (name_end, define, &args);
 					if (!name_end)
 						return (char *) ptr;
-					
+
 					expr = parse_define (define);
 					if (expr != NULL)
 					{
@@ -643,7 +643,7 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 						{
 							if (IsErrorInSPASMErrorSession(session, SPASM_ERR_EXCEEDED_RECURSION_LIMIT) == false)
 							{
-								
+
 								int inner_session = StartSPASMErrorSession();
 								parse_emit_string(expr, type, echo_target);
 								if (IsSPASMErrorSessionFatal(inner_session))
@@ -671,7 +671,7 @@ char *parse_emit_string (const char *ptr, ES_TYPE type, void *echo_target) {
 				else
 				{
 echo_error:
-					
+
 					switch (type)
 					{
 					case ES_ECHO:
@@ -706,7 +706,7 @@ echo_error:
 			}
 		}
 	}
-	
+
 	level--;
 	return (char *) ptr;
 }

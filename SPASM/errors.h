@@ -72,7 +72,7 @@ SPASMERROR, *LPSPASMERROR;
 #ifndef _ERRORS_CPP
 extern
 #endif
-SPASMERROR g_ErrorCodes[]
+	SPASMERROR g_ErrorCodes[]
 #ifdef _ERRORS_CPP
 =
 {
@@ -152,7 +152,7 @@ void ClearSPASMErrorSessions();
 void AddSPASMErrorSessionAnnotation(int nSession, LPCTSTR lpszFormat, ...);
 bool IsErrorInSPASMErrorSession(int nSession, DWORD dwErrorCode);
 void FreeSPASMErrorSessions(void);
-#ifdef _TEST
+#if defined(_ATL_STATIC_REGISTRY)
 DWORD GetLastSPASMError();
 int GetLastSPASMErrorLine();
 #endif

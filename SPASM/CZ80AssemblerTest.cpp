@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#if defined(_ATL_STATIC_REGISTRY)
 #include "spasm.h"
 #include "storage.h"
 #include "errors.h"
@@ -263,7 +263,7 @@ public:
 private:
 	void AddDefines()
 	{
-		
+
 		CComPtr<IUnknown> pEnumUnk;
 		HRESULT hr = m_dict->_NewEnum(&pEnumUnk);
 
@@ -299,3 +299,4 @@ private:
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(Z80Assembler), CZ80Assembler)
+#endif

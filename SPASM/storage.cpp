@@ -38,8 +38,8 @@ void write_defines_callback(define_t *, list_t *label_list);
 
 
 /*
- * Writes a label file
- */
+Writes a label file
+*/
 #define NUM_BUILTIN_DEFINES 7
 void write_labels (char *filename) {
 	FILE *symtable;
@@ -55,15 +55,15 @@ void write_labels (char *filename) {
 
 	// Create a header node with an impossible label name
 	hdr_node.name = "#header";
-	
+
 	label_list.data = &hdr_node;
 	label_list.next = NULL;
-	
+
 	int session = StartSPASMErrorSession();
 	hash_enum (label_table, (HASH_ENUM_CALLBACK) write_labels_callback, &label_list);
 	hash_enum (define_table, (HASH_ENUM_CALLBACK) write_defines_callback, &label_list);
 	EndSPASMErrorSession(session);
-	
+
 	node = label_list.next;
 	int index = 0;
 	while (node != NULL) {
@@ -74,13 +74,13 @@ void write_labels (char *filename) {
 	}
 
 	fclose (symtable);
-	
+
 	list_free (label_list.next, true, NULL);
 }
 
 /*
- * Inserts a label into label_list alphabetically
- */
+Inserts a label into label_list alphabetically
+*/
 
 void write_labels_callback(label_t *label, list_t *label_list) {
 	label_t *labelToAdd;
@@ -98,8 +98,8 @@ void write_labels_callback(label_t *label, list_t *label_list) {
 }
 
 /*
- * Inserts a define into a label list alphabetically (will parse if possible)
- */
+Inserts a define into a label list alphabetically (will parse if possible)
+*/
 void write_defines_callback(define_t *define, list_t *label_list) {
 	int value;
 	label_t *label;
@@ -107,16 +107,16 @@ void write_defines_callback(define_t *define, list_t *label_list) {
 
 	if (define->num_args > 0 || define->contents == NULL)
 		return;
-	
+
 	if (parse_num(define->contents, &value) == false)
 		return;
-	
+
 	node = label_list->next, prev = label_list;
 	while (node != NULL && strcasecmp (define->name, ((label_t *) node->data)->name) > 0) {
 		prev = node;
 		node = node->next;
 	}
-	
+
 	label = (label_t *) malloc(sizeof(label_t));
 	label->name = define->name;
 	label->value = value;
@@ -141,9 +141,9 @@ void dump_defines() {
 }
 
 /*
- * Destroy functions for
- * values in hash tables
- */
+Destroy functions for
+values in hash tables
+*/
 
 static void destroy_define_value (define_t *define) {
 	int curr_arg;
@@ -173,9 +173,9 @@ static void destroy_label_value (label_t *label) {
 
 
 /*
- * Inits label, define, and macro
- * storage tables
- */
+Inits label, define, and macro
+storage tables
+*/
 void init_storage() {
 	define_t *define;
 	char* test ;
@@ -196,7 +196,7 @@ void init_storage() {
 	test = strdup ("__R,__G,__B)");
 	parse_arg_defs (test, define);
 	free(test);
-	
+
 	(define = add_define (strdup ("GETC"), NULL))->contents = strdup ("(0)");
 	test = strdup ("__A, __N)"); 
 	parse_arg_defs (test, define);
@@ -205,8 +205,8 @@ void init_storage() {
 
 
 /*
- * Frees all storage for labels and defines
- */
+Frees all storage for labels and defines
+*/
 EXPORT void free_storage() {
 	opcode *next_opcode = NULL, *last_opcode = NULL, *curr_opcode = all_opcodes;
 	all_opcodes = opcode_list;
@@ -246,12 +246,12 @@ bool get_case_sensitive() {
 
 
 /*
- * Adds define with allocated name,
- * returns a pointer to it and sets
- * a bool if it's being redefined
- * 
- * Call with redefined = NULL if you don't care
- */
+Adds define with allocated name,
+returns a pointer to it and sets
+a bool if it's being redefined
+
+Call with redefined = NULL if you don't care
+*/
 
 define_t *add_define (char *name, bool *redefined, bool search_local) {
 	define_t *define;
@@ -268,19 +268,19 @@ define_t *add_define (char *name, bool *redefined, bool search_local) {
 		free (name);
 		name = new_name;
 	}
-	
+
 	if ((conflict_label = search_labels(name))) {
 		show_error ("conflicting definition of '%s'", name);
 		//if (suppress_errors == false) {
-			show_error_prefix (conflict_label->input_file, conflict_label->line_num);
-			WORD attr = save_console_attributes();
-			set_console_attributes (COLOR_RED);
-			printf ("previous definition of '%s' was here\n", name);
-			restore_console_attributes(attr);
+		show_error_prefix (conflict_label->input_file, conflict_label->line_num);
+		WORD attr = save_console_attributes();
+		set_console_attributes (COLOR_RED);
+		printf ("previous definition of '%s' was here\n", name);
+		restore_console_attributes(attr);
 		//}
 		return NULL;
 	}
-	
+
 	// handle redefinitions
 	if ((define = search_defines (name, search_local))) {
 		int curr_arg;
@@ -289,9 +289,9 @@ define_t *add_define (char *name, bool *redefined, bool search_local) {
 		//define->line_num = line_num;
 		//define->input_file = curr_input_file;
 		/* Don't clear the contents of the #define, because
-		   if it's being redefined references to itself may
-		   need to be expanded, which will require the original
-		   contents - all handled by set_define */
+		if it's being redefined references to itself may
+		need to be expanded, which will require the original
+		contents - all handled by set_define */
 
 		for (curr_arg = 0; curr_arg < define->num_args; curr_arg++) {
 			if (define->args[curr_arg] != NULL) {
@@ -306,7 +306,7 @@ define_t *add_define (char *name, bool *redefined, bool search_local) {
 
 		return define;
 	} 
-	
+
 	if (redefined != NULL)
 		*redefined = false;
 
@@ -362,11 +362,11 @@ define_t *search_local_defines (const char *name) {
 	return result;
 }
 /*
- * Finds define by name,
- * returns pointer to
- * define data if found
- * or NULL if not found
- */
+Finds define by name,
+returns pointer to
+define data if found
+or NULL if not found
+*/
 
 define_t *search_defines (const char *name, bool search_local) {	
 	define_t *result = NULL;
@@ -394,20 +394,20 @@ define_t *search_defines (const char *name, bool search_local) {
 	//if that doesn't work, look in the global define table
 	if (!result)
 		result = (define_t *)hash_lookup (define_table, search_name);
-	
+
 #define MHASH(Z) (murmur_hash(Z, strlen(Z)))
 
 	curr_hash = murmur_hash (search_name, strlen (search_name));
 	// Search all SPASM predefined values
 	if (!strcmp(search_name, "__LINE")) {
-		
+
 		char line_buf[32];
 		sprintf (line_buf, "%d", line_num);
 		if (result)
 			set_define (result, line_buf, -1, false);
-		
+
 	} else if (!strcmp(search_name, "__FILE")) {
-		
+
 		char fn_buf[MAX_PATH * 2] = { 0 };
 		char *buf_ptr = fn_buf;
 		*buf_ptr++ = '"';
@@ -425,10 +425,10 @@ define_t *search_defines (const char *name, bool search_local) {
 		if (result) {
 			set_define(result, fn_buf, -1, false);
 		}
-		
+
 	}
 	//printf("fail: %s %08x\n", search_name, murmur_hash(search_name, strlen(search_name)));
-	
+
 	if (!case_sensitive)
 		free (search_name);
 
@@ -439,15 +439,15 @@ define_t *search_defines (const char *name, bool search_local) {
 
 
 /*
- * Removes a define by name
- */
+Removes a define by name
+*/
 
 void remove_define (char *name) {
 	if (!case_sensitive) {
 		char *new_name = strup (name);
 		name = new_name;
 	}
-			
+
 	hash_remove (define_table, name);
 
 	if (!case_sensitive)
@@ -456,13 +456,13 @@ void remove_define (char *name) {
 
 
 /*
- * Sets #define contents from str
- * with length (-1 to find internally),
- * if it's been redefined, processes
- * it and replaces instances of its
- * own name with the expanded contents
- * to avoid endless recursion
- */
+Sets #define contents from str
+with length (-1 to find internally),
+if it's been redefined, processes
+it and replaces instances of its
+own name with the expanded contents
+to avoid endless recursion
+*/
 
 void set_define (define_t *define, const char *str, int len, bool redefined) {
 	//if there's any possibility that the define is being redefined, use
@@ -483,7 +483,7 @@ void set_define (define_t *define, const char *str, int len, bool redefined) {
 		//arg_list = NULL;
 
 		define_table = hash_init (1, (HASH_REMOVE_CALLBACK) destroy_define_value);
-		
+
 		add_define (strdup (define->name), NULL, false)->contents = strdup (define->contents);
 		temp = len == -1 ? strdup (str) : strndup (str, len);
 		result = expand_expr (temp, false);
@@ -501,8 +501,8 @@ void set_define (define_t *define, const char *str, int len, bool redefined) {
 
 #ifdef USE_REUSABLES
 /* 
- * write a new reusable label
- */
+write a new reusable label
+*/
 void add_reusable() {
 	reusables[curr_reusable++] = program_counter;
 	total_reusables = curr_reusable;
@@ -510,22 +510,22 @@ void add_reusable() {
 
 
 /*
- * Returns the index to the current reusable
- */
+Returns the index to the current reusable
+*/
 int get_curr_reusable() {
 	return curr_reusable - 1;
 }
 
 /*
- * sets the index of the current reusable
- */
+sets the index of the current reusable
+*/
 int set_curr_reusable(int index) {
 	return curr_reusable = index + 1;
 }
 
 /*
- * Search reusables
- */
+Search reusables
+*/
 unsigned int search_reusables(int index) {
 	if (index == -1 || index >= total_reusables) {
 		show_error("Referenced undefined reusable label");
@@ -536,8 +536,8 @@ unsigned int search_reusables(int index) {
 }
 
 /*
- * Get the number of reusable labels
- */
+Get the number of reusable labels
+*/
 int get_num_reusables() {
 	return total_reusables;
 }
@@ -545,8 +545,8 @@ int get_num_reusables() {
 #endif
 
 /*
- * Adds a label with allocated name
- */
+Adds a label with allocated name
+*/
 
 label_t *add_label (char *name, int value) {
 	label_t *new_label;
@@ -566,15 +566,15 @@ label_t *add_label (char *name, int value) {
 	if ((conflict_define = search_defines(name))) {
 		show_error ("conflicting definition of '%s'", name);
 		//if (suppress_errors == false) {
-			show_error_prefix (conflict_define->input_file, conflict_define->line_num);
-			WORD attr = save_console_attributes();
-			set_console_attributes (COLOR_RED);
-			printf ("previous definition of '%s' was here\n", name);
-			restore_console_attributes(attr);
+		show_error_prefix (conflict_define->input_file, conflict_define->line_num);
+		WORD attr = save_console_attributes();
+		set_console_attributes (COLOR_RED);
+		printf ("previous definition of '%s' was here\n", name);
+		restore_console_attributes(attr);
 		//}
 		return NULL;
 	}
-	
+
 	if ((new_label = search_labels (name))) {
 		if (value != new_label->value) {
 			new_label->value = value;
@@ -587,25 +587,25 @@ label_t *add_label (char *name, int value) {
 		}
 	} else {
 		new_label = (label_t *)malloc (sizeof (label_t));
-		
+
 		if (new_label != NULL) {
 			new_label->name = name;
 			new_label->line_num = line_num;
 			new_label->input_file = strdup(curr_input_file);
 			new_label->value = value;
-			
+
 			hash_insert (label_table, new_label);
 		}
-		
+
 	}
 	return new_label;
 }
 
 
 /*
- * Adds a set of arguments
- * returns a pointer to it
- */
+Adds a set of arguments
+returns a pointer to it
+*/
 
 list_t *add_arg_set(void) {
 	arg_list = list_prepend(arg_list, hash_init(MAX_ARGS, (HASH_REMOVE_CALLBACK) destroy_define_value));
@@ -614,9 +614,9 @@ list_t *add_arg_set(void) {
 
 
 /*
- * Adds an argument defined within a macro,
- * with allocated contents and name
- */
+Adds an argument defined within a macro,
+with allocated contents and name
+*/
 
 void add_arg(char *name, char *value, list_t *arg_set) {
 	define_t *new_arg;
@@ -646,9 +646,9 @@ void add_arg(char *name, char *value, list_t *arg_set) {
 
 
 /*
- * Removes a set of arguments
- * (used when a macro ends)
- */
+Removes a set of arguments
+(used when a macro ends)
+*/
 
 void remove_arg_set(list_t *arg_set) {
 	//define_t *new_arg;
@@ -665,10 +665,10 @@ void remove_arg_set(list_t *arg_set) {
 
 
 /*
- * Searches for a label by name,
- * returns pointer to data if
- * found or NULL if not
- */
+Searches for a label by name,
+returns pointer to data if
+found or NULL if not
+*/
 
 label_t *search_labels (const char *name) {
 	label_t *result;
@@ -685,8 +685,8 @@ label_t *search_labels (const char *name) {
 
 
 /*
- * Returns the number of defines
- */
+Returns the number of defines
+*/
 
 int get_num_defines () {
 	return hash_count (define_table);
@@ -694,8 +694,8 @@ int get_num_defines () {
 
 
 /*
- * Returns the number of labels
- */
+Returns the number of labels
+*/
 
 int get_num_labels () {
 	return hash_count (label_table);

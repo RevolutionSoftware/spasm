@@ -30,8 +30,8 @@ const char *last_banner = NULL;
 const char *built_in_fcreate = "Built-in fcreate";
 
 /*
- * Writes val to the output
- */
+Writes val to the output
+*/
 
 int write_out (int val) {
 
@@ -44,8 +44,8 @@ int write_out (int val) {
 			listing_offset = eb_insert (listing_buf, listing_offset, NEWLINE "              ", -1);
 		} else if (!pass_one) {
 			/* If it's on the second pass, a word might
-			   span two lines, so check if we need to skip
-			   to the beginning of the next line */
+			span two lines, so check if we need to skip
+			to the beginning of the next line */
 			char buf_char = eb_get_char (listing_buf, listing_offset);
 			if (buf_char == '\n' || buf_char == '\r') {
 				while (isspace ((unsigned char) eb_get_char (listing_buf, listing_offset)))
@@ -71,11 +71,11 @@ int write_out (int val) {
 
 
 /*
- * Writes listing for a single line, not
- * including hex data (handled by write_out)
- * or line number / program counter (handled
- * in run_first_pass)
- */
+Writes listing for a single line, not
+including hex data (handled by write_out)
+or line number / program counter (handled
+in run_first_pass)
+*/
 
 void do_listing_for_line (char *ptr) {
 	char *curr_line, text[32];
@@ -107,9 +107,9 @@ void do_listing_for_line (char *ptr) {
 
 
 /*
- * Goes through the first
- * pass on an mmapped file
- */
+Goes through the first
+pass on an mmapped file
+*/
 
 void run_first_pass (char *ptr) {
 	line_num = 1;
@@ -137,11 +137,11 @@ void run_first_pass (char *ptr) {
 		if (ptr != NULL) {
 			//evaluate the line
 			ptr = skip_to_next_line (ptr);
-	
+
 			//do listing stuff for this line
 			if (mode & MODE_LIST && listing_on && !listing_for_line_done)
 				do_listing_for_line (ptr);
-	
+
 			line_num++;
 		}
 	}
@@ -149,16 +149,16 @@ void run_first_pass (char *ptr) {
 
 
 /*
- * Parses a single line,
- * returns a pointer to the
- * end of the line
- */
+Parses a single line,
+returns a pointer to the
+end of the line
+*/
 
 char *run_first_pass_line (char *ptr) {
 	do {
 		if (*ptr == '\\')
 			ptr++;
-		
+
 		//char *code_end = skip_to_line_end(ptr);
 		//printf("line %d: %s\n", line_num, strndup(ptr, code_end - ptr));
 		//parse what's on the line
@@ -176,10 +176,10 @@ char *run_first_pass_line (char *ptr) {
 
 
 /*
- * Parses a single command/section
- * on a line, returns a pointer to
- * the end of the usable part
- */
+Parses a single command/section
+on a line, returns a pointer to
+the end of the usable part
+*/
 
 char *run_first_pass_line_sec (char *ptr) {
 
@@ -198,9 +198,9 @@ char *run_first_pass_line_sec (char *ptr) {
 		name = strndup (ptr, label_end - ptr);
 
 		ptr = label_end;
-		
+
 		if (*ptr == ':') ptr++;
-		
+
 #ifdef USE_REUSABLES
 		if (strcmp (name, "_") == 0) {
 			add_reusable();
@@ -220,8 +220,8 @@ char *run_first_pass_line_sec (char *ptr) {
 
 		if (isalpha (*ptr) || *ptr == '_')
 			//otherwise, it might be an instruction or macro
-			return handle_opcode_or_macro (ptr);
-		
+				return handle_opcode_or_macro (ptr);
+
 		return run_first_pass_line_sec (ptr);		
 	} else if (*ptr == '.') {
 		//handle it if it's a directive
@@ -263,10 +263,10 @@ static define_t *search_defines_helper(const char *name_start, size_t len)
 }
 
 /*
- * Handles an opcode or macro,
- * returns the new location in
- * the file
- */
+Handles an opcode or macro,
+returns the new location in
+the file
+*/
 
 char *handle_opcode_or_macro (char *ptr) {
 	char *name_end;
@@ -285,7 +285,7 @@ char *handle_opcode_or_macro (char *ptr) {
 		curr_opcode = curr_opcode->next;
 	}
 
-	
+
 
 	//if it was found, then find the right instruction
 	if (curr_opcode && curr_opcode->name) {
@@ -314,7 +314,7 @@ char *handle_opcode_or_macro (char *ptr) {
 		define_t *define;
 #ifdef USE_BUILTIN_FCREATE
 		if (!strncasecmp (name_start, "buf", name_end - name_start) && *ptr == '(') {
-		    char buf[256];
+			char buf[256];
 			int value;
 			cur_buf = read_expr(ptr, buf, _T(")"));
 			if (parse_num(buf, &value)) {
@@ -405,104 +405,104 @@ char *handle_opcode_or_macro (char *ptr) {
 		} else
 #endif
 
-		if ((define = search_defines_helper(name_start, name_end - name_start)))
-		{
-			list_t *args = NULL;
-			char *args_end;
-
-			//if there are arguments, parse them
-			int session = StartSPASMErrorSession();
-			args_end = parse_args(ptr, define, &args);
-			
-			ptr = args_end;
-
-			if (!IsSPASMErrorSessionFatal(session))
+			if ((define = search_defines_helper(name_start, name_end - name_start)))
 			{
-				in_macro++;
+				list_t *args = NULL;
+				char *args_end;
 
-				//printf("args: %s\n", ((define_t *) args->data)->name);
-			
-				//see if any code is left on the line
-				if (!is_end_of_code_line (skip_whitespace (ptr))) {
-					char *line_end = skip_to_line_end (ptr);
-					if (define->contents == NULL)
-					{
-						SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, define->name);
-					}
-					else
-					{
-						char *full_line = (char *)malloc(strlen(define->contents) + line_end - ptr + 1);
+				//if there are arguments, parse them
+				int session = StartSPASMErrorSession();
+				args_end = parse_args(ptr, define, &args);
 
-						strcpy(full_line, define->contents);
-						strncat(full_line, ptr, line_end - ptr);
+				ptr = args_end;
 
-						run_first_pass_line(full_line);
-						free(full_line);
-					}
-				} else {
-					if (define->contents == NULL)
-					{
-						SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, define->name);
-					}
-					else
-					{
-						//parse each line in the macro (prefix with space)
-						//Buckeye: this malloc size is extra so that we can simply replace
-						//@params and not worry about reallocating
-						char *full_macro = (char *) malloc(strlen(define->contents) + 2);
-						char *curr_line = full_macro;
+				if (!IsSPASMErrorSessionFatal(session))
+				{
+					in_macro++;
 
-						full_macro[0] = ' ';
-						strcpy(&full_macro[1], define->contents);
+					//printf("args: %s\n", ((define_t *) args->data)->name);
 
-						//char *replace_args_ptr = full_macro;
-						//replace_args_ptr = replace_literal_args(replace_args_ptr, define, &args);
-
-						const char *old_filename = curr_input_file;
-						int old_line_num = line_num;
-						curr_input_file = define->input_file;
-						line_num = define->line_num;
-	
-						while (curr_line != NULL && *curr_line && !error_occurred)
+					//see if any code is left on the line
+					if (!is_end_of_code_line (skip_whitespace (ptr))) {
+						char *line_end = skip_to_line_end (ptr);
+						if (define->contents == NULL)
 						{
-							char *next_line = run_first_pass_line(curr_line);
-							curr_line = skip_to_next_line(next_line);
-							line_num++;
+							SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, define->name);
 						}
+						else
+						{
+							char *full_line = (char *)malloc(strlen(define->contents) + line_end - ptr + 1);
 
-						if ((mode & MODE_LIST) && listing_on && last_banner != old_filename) {
-							if (mode & MODE_LIST && listing_on && !listing_for_line_done)
-								do_listing_for_line (skip_to_next_line (line_start) );
+							strcpy(full_line, define->contents);
+							strncat(full_line, ptr, line_end - ptr);
 
-							listing_for_line_done = true;
-
-							char include_banner[MAX_PATH + 64];
-							snprintf(include_banner, sizeof (include_banner), "Listing for file \"%s\"" NEWLINE, old_filename);
-							listing_offset = eb_insert (listing_buf, listing_offset, include_banner, strlen (include_banner));
-							last_banner = old_filename;
+							run_first_pass_line(full_line);
+							free(full_line);
 						}
+					} else {
+						if (define->contents == NULL)
+						{
+							SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, define->name);
+						}
+						else
+						{
+							//parse each line in the macro (prefix with space)
+							//Buckeye: this malloc size is extra so that we can simply replace
+							//@params and not worry about reallocating
+							char *full_macro = (char *) malloc(strlen(define->contents) + 2);
+							char *curr_line = full_macro;
 
-						curr_input_file = (char *) old_filename;
-						line_num = old_line_num;
+							full_macro[0] = ' ';
+							strcpy(&full_macro[1], define->contents);
 
-						free(full_macro);
+							//char *replace_args_ptr = full_macro;
+							//replace_args_ptr = replace_literal_args(replace_args_ptr, define, &args);
+
+							const char *old_filename = curr_input_file;
+							int old_line_num = line_num;
+							curr_input_file = define->input_file;
+							line_num = define->line_num;
+
+							while (curr_line != NULL && *curr_line && !error_occurred)
+							{
+								char *next_line = run_first_pass_line(curr_line);
+								curr_line = skip_to_next_line(next_line);
+								line_num++;
+							}
+
+							if ((mode & MODE_LIST) && listing_on && last_banner != old_filename) {
+								if (mode & MODE_LIST && listing_on && !listing_for_line_done)
+									do_listing_for_line (skip_to_next_line (line_start) );
+
+								listing_for_line_done = true;
+
+								char include_banner[MAX_PATH + 64];
+								snprintf(include_banner, sizeof (include_banner), "Listing for file \"%s\"" NEWLINE, old_filename);
+								listing_offset = eb_insert (listing_buf, listing_offset, include_banner, strlen (include_banner));
+								last_banner = old_filename;
+							}
+
+							curr_input_file = (char *) old_filename;
+							line_num = old_line_num;
+
+							free(full_macro);
+						}
 					}
+					in_macro--;
 				}
-				in_macro--;
+
+				//clear the argument values
+				remove_arg_set(args);
+
+				AddSPASMErrorSessionAnnotation(session, "Error during invocation of macro '%s'", define->name);
+				ReplayFatalSPASMErrorSession(session);
+				EndSPASMErrorSession(session);
+
+			} else {
+				char *name = strndup(name_start, name_end - name_start);
+				SetLastSPASMError(SPASM_ERR_UNKNOWN_OPCODE, name);
+				free (name);
 			}
-
-			//clear the argument values
-			remove_arg_set(args);
-
-			AddSPASMErrorSessionAnnotation(session, "Error during invocation of macro '%s'", define->name);
-			ReplayFatalSPASMErrorSession(session);
-			EndSPASMErrorSession(session);
-
-		} else {
-			char *name = strndup(name_start, name_end - name_start);
-			SetLastSPASMError(SPASM_ERR_UNKNOWN_OPCODE, name);
-			free (name);
-		}
 	}
 
 	return ptr;
@@ -510,16 +510,16 @@ char *handle_opcode_or_macro (char *ptr) {
 
 
 /*
- * Tries to match instruction
- * arguments at ptr to one of
- * the sets of arguments for
- * curr_opcode, sets arg_ptrs
- * and arg_end_ptrs to start
- * and end of text of arguments,
- * sets curr_instr if a match
- * is found, returns new position
- * in file
- */
+Tries to match instruction
+arguments at ptr to one of
+the sets of arguments for
+curr_opcode, sets arg_ptrs
+and arg_end_ptrs to start
+and end of text of arguments,
+sets curr_instr if a match
+is found, returns new position
+in file
+*/
 
 char *match_opcode_args (char *ptr, char **arg_ptrs, char **arg_end_ptrs, opcode *curr_opcode, instr **curr_instr) {
 	char *curr_arg_file;
@@ -570,7 +570,7 @@ char *match_opcode_args (char *ptr, char **arg_ptrs, char **arg_end_ptrs, opcode
 		// If the next mnemonic is the same, skip to the next group
 		if (curr_opcode->next != NULL && !strcasecmp (curr_opcode->name, curr_opcode->next->name))
 			return match_opcode_args (ptr, arg_ptrs, arg_end_ptrs, curr_opcode->next, curr_instr);
-		
+
 		//if it doesn't match any instructions for this opcode, show an error and skip to line end
 		SetLastSPASMError(SPASM_ERR_INVALID_OPERANDS, curr_opcode->name);
 
@@ -583,10 +583,10 @@ char *match_opcode_args (char *ptr, char **arg_ptrs, char **arg_end_ptrs, opcode
 
 
 /*
- * Writes the instruction data and arguments
- * for curr_instr, with argument text start
- * and end points in arg_ptrs and arg_end_ptrs
- */
+Writes the instruction data and arguments
+for curr_instr, with argument text start
+and end points in arg_ptrs and arg_end_ptrs
+*/
 
 void write_instruction_data (instr *curr_instr, char **arg_ptrs, char **arg_end_ptrs) {
 	char *bit_arg_text = NULL;
@@ -606,14 +606,14 @@ void write_instruction_data (instr *curr_instr, char **arg_ptrs, char **arg_end_
 		if (is_arg (curr_instr->args[i])) {
 			//first get the text of each argument
 			char *arg_text = strndup (arg_ptrs[curr_arg_num],
-			                          arg_end_ptrs[curr_arg_num] - arg_ptrs[curr_arg_num]);
+				arg_end_ptrs[curr_arg_num] - arg_ptrs[curr_arg_num]);
 
 			// Check for extra parentheses (confusingly looks like indirection)
 			if (arg_text[0] == '(') {
 				int level = 1;
 				char *p = &arg_text[1];
 				char *last = &arg_text[strlen(arg_text) - 1];
-				
+
 				// Clip off ending space
 				while (isspace((unsigned char) *last) && last > p)
 					last--;
@@ -630,30 +630,30 @@ void write_instruction_data (instr *curr_instr, char **arg_ptrs, char **arg_end_
 			curr_arg_num++;
 
 			switch (curr_instr->args[i]) {
-				case '*': //16-bit number
-					add_pass_two_expr (arg_text, ARG_NUM_16, 0);
-					free (arg_text);
-					break;
-				case '&': //8-bit number
-					add_pass_two_expr (arg_text, ARG_NUM_8, 0);
-					free (arg_text);
-					break;
-				case '%': //8-bit address offset
-					add_pass_two_expr (arg_text, ARG_ADDR_OFFSET, 0);
-					free (arg_text);
-					break;
-				case '@': //8-bit IX/IY offset	
-					add_pass_two_expr (arg_text, ARG_IX_IY_OFFSET, 0);
-					free (arg_text);
-					break;
-				case '^': //bit number
-					has_bit_arg = true;
-					bit_arg_text = arg_text;
-					break;
-				case '#':
-					add_pass_two_expr (arg_text, ARG_RST, 0);
-					free(arg_text);
-					break;
+			case '*': //16-bit number
+				add_pass_two_expr (arg_text, ARG_NUM_16, 0);
+				free (arg_text);
+				break;
+			case '&': //8-bit number
+				add_pass_two_expr (arg_text, ARG_NUM_8, 0);
+				free (arg_text);
+				break;
+			case '%': //8-bit address offset
+				add_pass_two_expr (arg_text, ARG_ADDR_OFFSET, 0);
+				free (arg_text);
+				break;
+			case '@': //8-bit IX/IY offset	
+				add_pass_two_expr (arg_text, ARG_IX_IY_OFFSET, 0);
+				free (arg_text);
+				break;
+			case '^': //bit number
+				has_bit_arg = true;
+				bit_arg_text = arg_text;
+				break;
+			case '#':
+				add_pass_two_expr (arg_text, ARG_RST, 0);
+				free(arg_text);
+				break;
 			}
 		}
 	}

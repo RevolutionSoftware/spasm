@@ -12,16 +12,16 @@
 #include "preop.h"
 #include "errors.h"
 
-			//case '+': total += last_num; break;
-			//case '-': total -= last_num; break;
-			//case '*': total *= last_num; break;
-			//case '/': total /= last_num; break;
-			//case '%': total %= last_num; break;
-			//case '^': total ^= last_num; break;
-			//case '&': total &= last_num; break;
-			//case '|': total |= last_num; break;
-			//case '<': total <<= last_num; break;
-			//case '>': total >>= last_num; break;
+//case '+': total += last_num; break;
+//case '-': total -= last_num; break;
+//case '*': total *= last_num; break;
+//case '/': total /= last_num; break;
+//case '%': total %= last_num; break;
+//case '^': total ^= last_num; break;
+//case '&': total &= last_num; break;
+//case '|': total |= last_num; break;
+//case '<': total <<= last_num; break;
+//case '>': total >>= last_num; break;
 
 typedef enum tagMATHOP
 {
@@ -102,12 +102,12 @@ bool parser_forward_ref_err;
 int parse_depth;
 
 /*
- * Parses an expression, sets
- * the result in value and
- * returns TRUE if successful,
- * otherwise sets value to 0
- * and returns FALSE
- */
+Parses an expression, sets
+the result in value and
+returns TRUE if successful,
+otherwise sets value to 0
+and returns FALSE
+*/
 
 bool parse_num (const char *expr, int *value) {
 	int fake_value;
@@ -126,9 +126,9 @@ bool parse_num (const char *expr, int *value) {
 }
 
 /*
- * Parses expression,
- * ignoring errors
- */
+Parses expression,
+ignoring errors
+*/
 
 int parse_f (const char *expr) {
 	int result;
@@ -147,11 +147,11 @@ int parse_f (const char *expr) {
 
 
 /*
- * Parses the contents of a define,
- * handling preops, and returns
- * the first line with a value,
- * allocated
- */
+Parses the contents of a define,
+handling preops, and returns
+the first line with a value,
+allocated
+*/
 
 char *parse_define (define_t *define)
 {
@@ -181,16 +181,16 @@ char *parse_define (define_t *define)
 
 
 /*
- * Parses a single number, sets
- * the value, and returns the
- * end of the number
- */
+Parses a single number, sets
+the value, and returns the
+end of the number
+*/
 
 static const char *parse_single_num (const char *expr, int *value) {
 
 	switch (*expr) {
 #ifdef USE_REUSABLES
-		case '+':
+	case '+':
 		//case '_':
 		{
 			//Local label!
@@ -218,30 +218,30 @@ static const char *parse_single_num (const char *expr, int *value) {
 			break;
 
 		}
-		case '-':
+	case '-':
 		{
 			//Again, a local label!
 			int this_reusable = get_curr_reusable();
 			if (*expr == '-') expr++;
-			
+
 			while (*expr == '-' && this_reusable > 0) {
 				expr++;
 				this_reusable--;
 			}
-	
+
 			if (*(expr++) != '_' || this_reusable < 0)
 			{
 				SetLastSPASMError(SPASM_ERR_LOCAL_LABEL_SYNTAX);
 				return NULL;
 			}
-	
+
 			*value = search_reusables(this_reusable);
 			break;
 
 		}
 #endif
 		//If the number has a prefix it's easy to tell what the type is!
-		case '$':
+	case '$':
 		{
 			const char *num_start = ++expr;
 			//Could be a hex number (ld hl,$1A2F) or the current address (ld hl,$)
@@ -257,9 +257,9 @@ static const char *parse_single_num (const char *expr, int *value) {
 				//TODO: This is questionable behavior.  It should probably check specifically for $
 				*value = program_counter;
 			break;
-	
+
 		}
-		case '%':
+	case '%':
 		{
 			const char *num_start = ++expr;
 			while (isalnum(*expr))
@@ -273,19 +273,19 @@ static const char *parse_single_num (const char *expr, int *value) {
 
 		}
 		//Handle literal chars in single quotes
-		case '\'':
+	case '\'':
 		{
 			*value = *(++expr);
 			if (*value == '\\') {
 				switch (toupper (*(++expr))) {
-					case 'N': 	*value = '\n'; break;
-					case '\\': 	*value = '\\'; break;
-					case '0': 	*value = '\0'; break;
-					case 'R': 	*value = '\r'; break;
-					case 'T': 	*value = '\t'; break;
-					case '\'': 	*value = '\''; break;
-					case '#': 	*value = rand () & 0xFF; break;
-					default: 	*value = *expr;
+				case 'N': 	*value = '\n'; break;
+				case '\\': 	*value = '\\'; break;
+				case '0': 	*value = '\0'; break;
+				case 'R': 	*value = '\r'; break;
+				case 'T': 	*value = '\t'; break;
+				case '\'': 	*value = '\''; break;
+				case '#': 	*value = rand () & 0xFF; break;
+				default: 	*value = *expr;
 				}
 			}
 
@@ -299,158 +299,158 @@ static const char *parse_single_num (const char *expr, int *value) {
 
 		}
 		//By now, it's either a label, number, or macro
-		default:
-			if (isalpha ((unsigned char) *expr) || *expr == '_') {
-				//If it starts with a letter or underscore, it's a label or a macro that returns a value
-				label_t *label = NULL;
-				define_t *define = NULL;
-				char *name;
+	default:
+		if (isalpha ((unsigned char) *expr) || *expr == '_') {
+			//If it starts with a letter or underscore, it's a label or a macro that returns a value
+			label_t *label = NULL;
+			define_t *define = NULL;
+			char *name;
 
-				const char *expr_start = expr;
-				//Find the end of the name, then try it as a label first
-				expr = skip_to_name_end (expr_start);
-				name = strndup (expr_start, expr - expr_start);
-				
-				define = search_local_defines(name);
-				if (define == NULL) {
-					label = search_labels(name);
-					if (label == NULL) {
-						define = search_defines(name);
-					}
+			const char *expr_start = expr;
+			//Find the end of the name, then try it as a label first
+			expr = skip_to_name_end (expr_start);
+			name = strndup (expr_start, expr - expr_start);
+
+			define = search_local_defines(name);
+			if (define == NULL) {
+				label = search_labels(name);
+				if (label == NULL) {
+					define = search_defines(name);
 				}
-				
-				//see if it's a local label
-				if (!strcmp (name, "_")) {
-					free (name);
-					if (get_curr_reusable() + 1 < get_num_reusables())
-					{
-						*value = search_reusables(get_curr_reusable() + 1);
-					}
-					else
-					{
-						SetLastSPASMError(SPASM_ERR_LOCAL_LABEL_FORWARD_REF);
-						return NULL;
-					}
+			}
+
+			//see if it's a local label
+			if (!strcmp (name, "_")) {
+				free (name);
+				if (get_curr_reusable() + 1 < get_num_reusables())
+				{
+					*value = search_reusables(get_curr_reusable() + 1);
 				}
-				else if (label != NULL) {
-						*value = label->value;
-						free (name);
-						//or the "eval" macro
-					} else if (!strcasecmp (name, "eval") && *expr == '(') {
-						free(name);
-						//show_warning ("eval() has no effect except in #define");
-						expr = parse_num_full (expr, value, 0);
-						//then a normal label
-					}
-					else if (!strcasecmp (name, "getc") && *expr == '(')
-					{
-						char filename[256];
-						FILE *temp_file;
-						define_t *define;
-						int char_index;
-						char parse_buf[256];
-						char *rfn;
+				else
+				{
+					SetLastSPASMError(SPASM_ERR_LOCAL_LABEL_FORWARD_REF);
+					return NULL;
+				}
+			}
+			else if (label != NULL) {
+				*value = label->value;
+				free (name);
+				//or the "eval" macro
+			} else if (!strcasecmp (name, "eval") && *expr == '(') {
+				free(name);
+				//show_warning ("eval() has no effect except in #define");
+				expr = parse_num_full (expr, value, 0);
+				//then a normal label
+			}
+			else if (!strcasecmp (name, "getc") && *expr == '(')
+			{
+				char filename[256];
+				FILE *temp_file;
+				define_t *define;
+				int char_index;
+				char parse_buf[256];
+				char *rfn;
 
-						free(name);
+				free(name);
 
-						expr++;
-						read_expr(&expr, filename, ",");
+				expr++;
+				read_expr(&expr, filename, ",");
 
-						// Is the filename given a macro?
-						if ((define = search_defines (filename)))
-						{
-							strncpy (filename, define->contents, sizeof (filename));
-						}
-
-						read_expr (&expr, parse_buf, ",");
-						char_index = parse_f (parse_buf);
-
-						rfn = fix_filename (reduce_string (filename));
-						if ((temp_file = fopen (rfn, "r"))) {
-							fseek (temp_file, char_index, SEEK_SET);
-							*value = fgetc (temp_file);
-							fclose (temp_file);
-						} else {
-							SetLastSPASMError(SPASM_ERR_FILE_NOT_FOUND, filename);
-						}
-
-						if (*expr == ')') expr++;
-						//If that didn't work, see if it's a macro
-					}
-					else if (define)
-					{
-						list_t *args = NULL;
-						char *contents;
-
-						free (name);
-
-						expr = parse_args (expr, define, &args);
-						if (!expr)
-							return NULL;
-
-						bool fHasError = false;
-						int old_line_num = line_num;
-						line_num = define->line_num;
-
-						int session = StartSPASMErrorSession();
-						contents = parse_define (define);
-						if (contents == NULL)
-						{
-							SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, define->name);
-						}
-						else
-						{
-							parse_num_full(contents, value, 0);
-							free(contents);
-						}
-
-						line_num = old_line_num;
-
-						if (GetSPASMErrorSessionErrorCount(session) > 0)
-						{
-							AddSPASMErrorSessionAnnotation(session, _T("Error during evaluation of macro '%s'"), define->name);
-							ReplaySPASMErrorSession(session);
-							fHasError = true;
-						}
-						EndSPASMErrorSession(session);
-
-						remove_arg_set (args);
-						if (fHasError == true)
-						{
-							return NULL;
-						}
-					}
-					else
-					{
-						SetLastSPASMError(SPASM_ERR_LABEL_NOT_FOUND, name);
-						parser_forward_ref_err = true;
-						free (name);
-						return NULL;
-					}
-
-			} else if ((unsigned char) isdigit (expr[0])) {
-				const char *expr_start = expr;
-				//Find the end of the number
-				while (isalnum ((unsigned char) expr[1])) expr++;
-
-				bool success;
-				switch (toupper (expr[0])) {
-		case 'H':	success = conv_hex (expr_start, expr++, value);	break;
-		case 'B':	success = conv_bin (expr_start, expr++, value); break;
-		case 'D':	success = conv_dec (expr_start, expr++, value); break;
-		default:	success = conv_dec (expr_start, ++expr, value); break;
+				// Is the filename given a macro?
+				if ((define = search_defines (filename)))
+				{
+					strncpy (filename, define->contents, sizeof (filename));
 				}
 
-				if (!success)
+				read_expr (&expr, parse_buf, ",");
+				char_index = parse_f (parse_buf);
+
+				rfn = fix_filename (reduce_string (filename));
+				if ((temp_file = fopen (rfn, "r"))) {
+					fseek (temp_file, char_index, SEEK_SET);
+					*value = fgetc (temp_file);
+					fclose (temp_file);
+				} else {
+					SetLastSPASMError(SPASM_ERR_FILE_NOT_FOUND, filename);
+				}
+
+				if (*expr == ')') expr++;
+				//If that didn't work, see if it's a macro
+			}
+			else if (define)
+			{
+				list_t *args = NULL;
+				char *contents;
+
+				free (name);
+
+				expr = parse_args (expr, define, &args);
+				if (!expr)
+					return NULL;
+
+				bool fHasError = false;
+				int old_line_num = line_num;
+				line_num = define->line_num;
+
+				int session = StartSPASMErrorSession();
+				contents = parse_define (define);
+				if (contents == NULL)
+				{
+					SetLastSPASMError(SPASM_ERR_ARG_USED_WITHOUT_VALUE, define->name);
+				}
+				else
+				{
+					parse_num_full(contents, value, 0);
+					free(contents);
+				}
+
+				line_num = old_line_num;
+
+				if (GetSPASMErrorSessionErrorCount(session) > 0)
+				{
+					AddSPASMErrorSessionAnnotation(session, _T("Error during evaluation of macro '%s'"), define->name);
+					ReplaySPASMErrorSession(session);
+					fHasError = true;
+				}
+				EndSPASMErrorSession(session);
+
+				remove_arg_set (args);
+				if (fHasError == true)
 				{
 					return NULL;
 				}
-
-			} else {
-				SetLastSPASMError(SPASM_ERR_BAD_VALUE_PREFIX, *expr);
+			}
+			else
+			{
+				SetLastSPASMError(SPASM_ERR_LABEL_NOT_FOUND, name);
+				parser_forward_ref_err = true;
+				free (name);
 				return NULL;
 			}
-			break;
+
+		} else if ((unsigned char) isdigit (expr[0])) {
+			const char *expr_start = expr;
+			//Find the end of the number
+			while (isalnum ((unsigned char) expr[1])) expr++;
+
+			bool success;
+			switch (toupper (expr[0])) {
+			case 'H':	success = conv_hex (expr_start, expr++, value);	break;
+			case 'B':	success = conv_bin (expr_start, expr++, value); break;
+			case 'D':	success = conv_dec (expr_start, expr++, value); break;
+			default:	success = conv_dec (expr_start, ++expr, value); break;
+			}
+
+			if (!success)
+			{
+				return NULL;
+			}
+
+		} else {
+			SetLastSPASMError(SPASM_ERR_BAD_VALUE_PREFIX, *expr);
+			return NULL;
+		}
+		break;
 	}
 
 	return expr;
@@ -458,10 +458,10 @@ static const char *parse_single_num (const char *expr, int *value) {
 
 
 /*
- * Skips until the next &&, ||,
- * <, >, ==, !=, <=, or >=, and
- * returns a pointer to it
- */
+Skips until the next &&, ||,
+<, >, ==, !=, <=, or >=, and
+returns a pointer to it
+*/
 
 const char *find_next_condition (const char *ptr) {
 	int depth = 0;
@@ -472,16 +472,16 @@ const char *find_next_condition (const char *ptr) {
 			((*ptr == '<' || *ptr == '>') && *(ptr + 1) != *ptr)))
 			break;
 		switch (*ptr) {
-			case '(': depth++; break;
-			case ')':
-				depth--;
-				if (depth < 0) return ptr;
-				break;
-			case '\'':
-				ptr++;
-				if (*ptr == '\\') ptr++;
-				if (*ptr) ptr++;
-				break;
+		case '(': depth++; break;
+		case ')':
+			depth--;
+			if (depth < 0) return ptr;
+			break;
+		case '\'':
+			ptr++;
+			if (*ptr == '\\') ptr++;
+			if (*ptr) ptr++;
+			break;
 		}
 		ptr++;
 	}
@@ -490,9 +490,9 @@ const char *find_next_condition (const char *ptr) {
 
 
 /*
- * Evaluates the expression in expr, sets value to result, returns
- * pointer to end of expression (if depth > 0) or NULL on error.
- */
+Evaluates the expression in expr, sets value to result, returns
+pointer to end of expression (if depth > 0) or NULL on error.
+*/
 
 static const char *parse_num_full (const char *expr, int *value, int depth) {
 	int total = 0, last_num;
@@ -525,12 +525,12 @@ static const char *parse_num_full (const char *expr, int *value, int depth) {
 			invert_lastnum = true;
 			expr++;
 
-		//Same with - signs
+			//Same with - signs
 		} else if (*expr == '-') {
 			expr++;
 			if (*expr == '-' || (*expr == '_' && skip_to_name_end (expr) == expr + 1))
 				//It's a local label, so let the number parsing stuff deal with it
-				expr--;
+					expr--;
 			else
 				//Otherwise, it's something like "-3" or "-value"
 				neg_lastnum = true;
@@ -542,7 +542,7 @@ static const char *parse_num_full (const char *expr, int *value, int depth) {
 			//If there was an error in that expression, then abort
 			if (!expr)
 				return NULL;
-		//Otherwise it's just a normal value
+			//Otherwise it's just a normal value
 		} else {
 			expr = parse_single_num (expr, &last_num);
 			if (!expr)
@@ -556,35 +556,35 @@ static const char *parse_num_full (const char *expr, int *value, int depth) {
 
 		//Now check on the last operator to see what to do with this number
 		switch (last_op) {
-			case M_NONE:
-				//Special case for the first number in the expression
-				total = last_num; break;
+		case M_NONE:
+			//Special case for the first number in the expression
+			total = last_num; break;
 
 			// Math
-			case M_ADD: total += last_num; break;
-			case M_SUB: total -= last_num; break;
-			case M_MUL: total *= last_num; break;
-			case M_DIV: total /= last_num; break;
-			case M_MOD: total %= last_num; break;
-			case M_XOR: total ^= last_num; break;
-			case M_LAND: total &= last_num; break;
-			case M_LOR: total |= last_num; break;
-			case M_LSHIFT: total <<= last_num; break;
-			case M_RSHIFT: total >>= last_num; break;
+		case M_ADD: total += last_num; break;
+		case M_SUB: total -= last_num; break;
+		case M_MUL: total *= last_num; break;
+		case M_DIV: total /= last_num; break;
+		case M_MOD: total %= last_num; break;
+		case M_XOR: total ^= last_num; break;
+		case M_LAND: total &= last_num; break;
+		case M_LOR: total |= last_num; break;
+		case M_LSHIFT: total <<= last_num; break;
+		case M_RSHIFT: total >>= last_num; break;
 
 			// Condition
-			case M_AND: total = total && last_num; break;
-			case M_OR: total = total || last_num; break;
-			case M_LT: total = total < last_num; break;
-			case M_GT: total = total > last_num; break;
-			case M_LTE: total = total <= last_num; break;
-			case M_GTE: total = total >= last_num; break;
-			case M_EQUALS: total = total == last_num; break;
-			case M_NOTEQUALS: total = total != last_num; break;
+		case M_AND: total = total && last_num; break;
+		case M_OR: total = total || last_num; break;
+		case M_LT: total = total < last_num; break;
+		case M_GT: total = total > last_num; break;
+		case M_LTE: total = total <= last_num; break;
+		case M_GTE: total = total >= last_num; break;
+		case M_EQUALS: total = total == last_num; break;
+		case M_NOTEQUALS: total = total != last_num; break;
 		}
 
 		//Get the next operator
-	get_op:
+get_op:
 		expr = skip_whitespace (expr);
 		//If it's the end of the expression, return the total so far
 		if (is_end_of_code_line (expr)) {
@@ -640,9 +640,9 @@ static const char *parse_num_full (const char *expr, int *value, int depth) {
 
 
 /*
- * Evaluates a hexadecimal string
- * returns true if succeeded, false otherwise
- */
+Evaluates a hexadecimal string
+returns true if succeeded, false otherwise
+*/
 
 bool conv_hex (const char* str, const char *end, int *output_num) {
 	int acc = 0;
@@ -650,7 +650,7 @@ bool conv_hex (const char* str, const char *end, int *output_num) {
 
 	while (str < end) {
 		char hexchar = toupper (*str);
-		
+
 		if (!isxdigit (*str))
 		{
 			char number[256];
@@ -660,7 +660,7 @@ bool conv_hex (const char* str, const char *end, int *output_num) {
 			SetLastSPASMError(SPASM_ERR_INVALID_HEX_DIGIT, *str, number);
 			return false;
 		}
-		
+
 		acc <<= 4;
 		if (hexchar > '9') {
 			acc+= hexchar - ('A' - 10);
@@ -675,9 +675,9 @@ bool conv_hex (const char* str, const char *end, int *output_num) {
 
 
 /*
- * Evaluates a decimal string
- * returns true if succeeded, false otherwise
- */
+Evaluates a decimal string
+returns true if succeeded, false otherwise
+*/
 
 static bool conv_dec (const char* str, const char *end, int *output_num) {
 	int acc = 0;
@@ -685,7 +685,7 @@ static bool conv_dec (const char* str, const char *end, int *output_num) {
 
 	while (str < end) {
 		acc *= 10;
-		
+
 		if (!isdigit ((unsigned char) *str))
 		{
 			char number[256];
@@ -695,7 +695,7 @@ static bool conv_dec (const char* str, const char *end, int *output_num) {
 			SetLastSPASMError(SPASM_ERR_INVALID_DECIMAL_DIGIT, *str, number);
 			return false;
 		}
-		
+
 		acc += *str-'0';
 		str++;
 	}
@@ -705,9 +705,9 @@ static bool conv_dec (const char* str, const char *end, int *output_num) {
 
 
 /*
- * Evaluates a binary string
- * returns true if succeeded, false otherwise
- */
+Evaluates a binary string
+returns true if succeeded, false otherwise
+*/
 
 static bool conv_bin (const char* str, const char *end, int *output_num) {
 	int acc = 0;
@@ -715,7 +715,7 @@ static bool conv_bin (const char* str, const char *end, int *output_num) {
 
 	while (str < end) {
 		acc <<= 1;
-		
+
 		if (!(*str == '0' || *str == '1'))
 		{
 			char number[256];
@@ -725,7 +725,7 @@ static bool conv_bin (const char* str, const char *end, int *output_num) {
 			SetLastSPASMError(SPASM_ERR_INVALID_BINARY_DIGIT, *str, number);
 			return false;
 		}
-		
+
 		if (*str == '1') acc++;
 		str++;
 	}

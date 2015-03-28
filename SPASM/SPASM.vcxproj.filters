@@ -47,9 +47,6 @@
     <ClCompile Include="export.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bitmap.cpp">
@@ -116,9 +110,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="expand_buf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="list.h">
@@ -180,9 +171,6 @@
     <None Include="Makefile">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Test.vbs">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="test.z80">
       <Filter>Test Files</Filter>
     </None>
@@ -191,6 +179,9 @@
     </None>
     <None Include="test.lst">
       <Filter>Generated Files</Filter>
+    </None>
+    <None Include="Test.vbs">
+      <Filter>Test Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

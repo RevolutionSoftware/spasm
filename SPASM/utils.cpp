@@ -44,10 +44,10 @@ char *mystrpbrk (const char * string, const char * control) {
 }
 
 /*
- * Returns true if ptr has reached what is the end of an assembly
- * line of code.
- * For example: comment, line break (\), or new line
- */
+Returns true if ptr has reached what is the end of an assembly
+line of code.
+For example: comment, line break (\), or new line
+*/
 bool is_end_of_code_line (const char *ptr) {
 	if (ptr == NULL)
 		return NULL;
@@ -56,8 +56,8 @@ bool is_end_of_code_line (const char *ptr) {
 }
 
 /*
- * Skips to the next physical line in the file
- */
+Skips to the next physical line in the file
+*/
 char *skip_to_next_line (const char *ptr) {
 	if (ptr == NULL)
 		return NULL;
@@ -74,11 +74,11 @@ char *skip_to_next_line (const char *ptr) {
 }
 
 /*
- * Skips to the end of a value spasm2 label name
- */
+Skips to the end of a value spasm2 label name
+*/
 char *skip_to_name_end (const char *ptr) {
 	const char ext_label_set[] = "_[]!?.";
-	
+
 	if (ptr == NULL)
 		return NULL;
 
@@ -132,7 +132,7 @@ bool is_arg (char test) {
 
 char *next_expr (const char *ptr, const char *delims) {
 	bool in_string = false, // "xxx xxx xx"
-		 in_escape = false;	// \n
+		in_escape = false;	// \n
 	int in_quote = 0;		// 'x'
 
 	/* Is there a word left to get? */
@@ -143,10 +143,10 @@ char *next_expr (const char *ptr, const char *delims) {
 
 	if (strlen(delims) == 1) {
 		while (*ptr != '\0' && !((strchr (ptr, delims[0]) == ptr || is_end_of_code_line (ptr))
-					&& !in_escape && !in_string && in_quote == 0)) {
+			&& !in_escape && !in_string && in_quote == 0)) {
 
-			if (!in_escape) {
-				switch( *ptr ) {
+				if (!in_escape) {
+					switch( *ptr ) {
 					case '"': 	
 						if (in_quote == 0) in_string = !in_string; 
 						break;
@@ -161,19 +161,19 @@ char *next_expr (const char *ptr, const char *delims) {
 						if (in_quote == 1) {
 							ptr -= 2;
 						}
-				}	
-				if (in_quote) in_quote--;
-			} else {
-				in_escape = false;
-			}
-			ptr++;
+					}	
+					if (in_quote) in_quote--;
+				} else {
+					in_escape = false;
+				}
+				ptr++;
 		}
 	} else {
 		while (*ptr != '\0' && !((mystrpbrk (ptr, delims) == ptr || is_end_of_code_line (ptr))
-					&& !in_escape && !in_string && in_quote == 0)) {
+			&& !in_escape && !in_string && in_quote == 0)) {
 
-			if (!in_escape) {
-				switch( *ptr ) {
+				if (!in_escape) {
+					switch( *ptr ) {
 					case '"': 	
 						if (in_quote == 0) in_string = !in_string; 
 						break;
@@ -188,12 +188,12 @@ char *next_expr (const char *ptr, const char *delims) {
 						if (in_quote == 1) {
 							ptr -= 2;
 						}
-				}	
-				if (in_quote) in_quote--;
-			} else {
-				in_escape = false;
-			}
-			ptr++;
+					}	
+					if (in_quote) in_quote--;
+				} else {
+					in_escape = false;
+				}
+				ptr++;
 		}
 	}
 
@@ -201,28 +201,28 @@ char *next_expr (const char *ptr, const char *delims) {
 }
 
 char *next_code_line(char *ptr) {
-	
+
 	ptr = next_expr(ptr, "\\;\r\n");
-	
+
 	if (*ptr == ';')
 		return skip_to_next_line(ptr);
-	
+
 	if (*ptr == '\\')
 		ptr++;
 	if (*ptr == '\r')
 		ptr++;
 	if (*ptr == '\n')
 		ptr++;
-	
+
 	return ptr;
 }
 
 
 /*
- * Parses an expression and returns
- * the result as a string if possible,
- * otherwise expands the expression
- */
+Parses an expression and returns
+the result as a string if possible,
+otherwise expands the expression
+*/
 
 char *eval (const char *expr)
 {
@@ -246,12 +246,12 @@ char *eval (const char *expr)
 
 
 /*
- * Parses the arguments for a macro,
- * returns a pointer to the end of the
- * arguments, or NULL on errors, sets
- * curr_arg_set to the node
- * holding the values of the args
- */
+Parses the arguments for a macro,
+returns a pointer to the end of the
+arguments, or NULL on errors, sets
+curr_arg_set to the node
+holding the values of the args
+*/
 
 char *parse_args (const char *ptr, define_t *define, list_t **curr_arg_set) {
 	int num_args = 0;
@@ -307,10 +307,10 @@ char *parse_args (const char *ptr, define_t *define, list_t **curr_arg_set) {
 }
 
 /*
- * Parses the arguments for a macro,
- * and replaces @* arguments with their
- * contents
- */
+Parses the arguments for a macro,
+and replaces @* arguments with their
+contents
+*/
 
 char *replace_literal_args (const char *ptr, define_t *define, list_t **curr_arg_set) {
 	char word[MAX_ARG_LEN], *new_ptr;
@@ -359,11 +359,11 @@ char *replace_literal_args (const char *ptr, define_t *define, list_t **curr_arg
 
 
 /*
- * Returns TRUE if a
- * line contains a word,
- * ignoring whitespace at
- * the beginning
- */
+Returns TRUE if a
+line contains a word,
+ignoring whitespace at
+the beginning
+*/
 
 bool line_has_word (char *ptr, const char *word, int word_len) {
 
@@ -374,24 +374,24 @@ bool line_has_word (char *ptr, const char *word, int word_len) {
 		//then make sure it isn't just the start of another word
 		ptr += word_len;
 		//if (isspace (*ptr) || is_end_of_code_line (ptr))
-			return true;
+		return true;
 	}
 	return false;
 }
 
 /*
- * Slow function to simplify coding of macros and directives with argument lists
- * .db blank, blank, macro(blank,blank), blank
- * macro( macro( blank, blank), blank)
- *
- * Returns 
- *		ptr to delimiter if terminated by reaching delimiter
- *		NULL if input was not delimiter terminated 
- */
+Slow function to simplify coding of macros and directives with argument lists
+.db blank, blank, macro(blank,blank), blank
+macro( macro( blank, blank), blank)
+*
+Returns 
+*		ptr to delimiter if terminated by reaching delimiter
+*		NULL if input was not delimiter terminated 
+*/
 
 bool read_expr_impl(const char ** const ptr, char word[256], const char *delims) {
 	bool in_string = false, // "xxx xxx xx"
-		 in_escape = false;	// \n
+		in_escape = false;	// \n
 	int in_quote = 0;		// 'x'
 	int level = 0;
 	char *word_ptr = word;
@@ -406,10 +406,10 @@ bool read_expr_impl(const char ** const ptr, char word[256], const char *delims)
 	}
 
 	while (**ptr != '\0' && !((mystrpbrk (*ptr, delims) == *ptr || is_end_of_code_line (*ptr))
-				&& !in_escape && !in_string && in_quote == 0 && level == 0)) {
+		&& !in_escape && !in_string && in_quote == 0 && level == 0)) {
 
-		if (!in_escape) {
-			switch( **ptr ) {
+			if (!in_escape) {
+				switch( **ptr ) {
 				case '"': 	
 					if (in_quote == 0) in_string = !in_string; 
 					break;
@@ -435,20 +435,20 @@ bool read_expr_impl(const char ** const ptr, char word[256], const char *delims)
 						*ptr -= 2;
 						word_ptr -= 2;
 					}
-			}	
-			if (in_quote) in_quote--;
-		} else {
-			in_escape = false;
-		}
-		if (word_ptr - word >= 254) {
-			show_fatal_error ("Expression is too long - must be 255 chars or less");
+				}	
+				if (in_quote) in_quote--;
+			} else {
+				in_escape = false;
+			}
+			if (word_ptr - word >= 254) {
+				show_fatal_error ("Expression is too long - must be 255 chars or less");
+				if (word)
+					strcpy (word, "0");
+				return true;
+			}
 			if (word)
-				strcpy (word, "0");
-			return true;
-		}
-		if (word)
-			*word_ptr++ = **ptr;
-		(*ptr)++;
+				*word_ptr++ = **ptr;
+			(*ptr)++;
 	}
 finish_read_expr:
 	// Remove whitespace at the end
@@ -462,7 +462,7 @@ finish_read_expr:
 	if (is_end_of_code_line (*ptr)) return true;
 	return true;
 }
- 
+
 
 char *extract_arg_string(const char ** const ptr, arg_context_t *context)
 {	
@@ -527,9 +527,9 @@ char *escape_string(const char *input)
 }
 
 /*
- * Removes surrounding quotation marks (if necessary)
- * and reduces control characters
- */
+Removes surrounding quotation marks (if necessary)
+and reduces control characters
+*/
 
 char* reduce_string (char* input) {
 	char *output = input;
@@ -567,15 +567,15 @@ char* reduce_string (char* input) {
 			memmove(input, input + 1, strlen(input));
 		}
 	}
-	
+
 	return input;
 }
 
 /*
- * Replaces backslashes in filename
- * with forward slashes to work across
- * different platforms
- */
+Replaces backslashes in filename
+with forward slashes to work across
+different platforms
+*/
 
 char *fix_filename (char *filename) {
 	char *sl = strchr (filename, WRONG_PATH_SEPARATOR);
@@ -589,38 +589,38 @@ char *fix_filename (char *filename) {
 
 
 /*
- * Checks to see if the given path is a full path or relative path
- */
+Checks to see if the given path is a full path or relative path
+*/
 bool is_abs_path(const char *filename) {
-	
+
 	if (filename == NULL)
 		return false;
 
 	char *fn = skip_whitespace((char *) filename);
-	
+
 	if (fn[0] == '/' || fn[0] == '\\')
 		return true;
-	
+
 	if (strlen(fn) < 2)
 		return false;
-	
+
 	if (fn[1] == ':' && isalpha(fn[0]))
 		return true;
-	
+
 	return false;
 }
 
 /*
- * Returns an allocated copy
- * of the string converted to
- * uppercase
- */
+Returns an allocated copy
+of the string converted to
+uppercase
+*/
 
 char *strup (const char *input) {	
 	char *new_string = (char *) malloc (strlen (input) + 1);
 	/*int i;
 	for (i = 0; input[i] != '\0'; i++)
-		new_string[i] = toupper (input[i]);
+	new_string[i] = toupper (input[i]);
 
 	new_string[i] = '\0';*/
 	//modp_toupper_copy(new_string, input, strlen(input));
@@ -639,12 +639,12 @@ void release_file_contents(char *contents)
 }
 
 /*
- * Gets file contents,
- * sets size and
- * returns address of
- * allocated contents
- * or NULL on error
- */
+Gets file contents,
+sets size and
+returns address of
+allocated contents
+or NULL on error
+*/
 
 char *get_file_contents (const char *filename) {
 #ifdef USE_MEMORY_MAPPED_FILES
@@ -718,31 +718,31 @@ char *get_file_contents (const char *filename) {
 
 
 /* 
- * check defined named "name" to see if
- * it has the value "value".  true
- * if it does
- */
+check defined named "name" to see if
+it has the value "value".  true
+if it does
+*/
 bool define_with_value (const char *name, const int value) {
 	define_t *define = search_defines (name);
 	if (define == NULL) return false;
-	
+
 	return (parse_f (define->contents) == value);
 }
 
 
 /*
- * Changes the filename extension of a file to the given ext.  If 
- * the file does not have an extension, a new one is added on
- */
+Changes the filename extension of a file to the given ext.  If 
+the file does not have an extension, a new one is added on
+*/
 
 char *change_extension (const char *filename, const char *ext) {
 	char *dot;
 	char *new_fn = (char *) malloc(strlen(filename) + strlen(ext) + 2);
 	strcpy(new_fn, filename);
-	
+
 	dot = strrchr(new_fn, '.');
 	if (dot != NULL) *dot = '\0';
-		
+
 	strcat(new_fn, ".");
 	return strcat(new_fn, ext);
 }
@@ -771,10 +771,10 @@ int strnlen (const char *str, int maxlen) {
 #endif
 
 /*
- * Fully expands the text of an expression by
- * replacing all macros and labels with their
- * text replacements
- */
+Fully expands the text of an expression by
+replacing all macros and labels with their
+text replacements
+*/
 
 static void expand_expr_full (const char *expr, expand_buf *new_expr, int depth, bool search_local) {
 	const char *block_start;
@@ -809,7 +809,7 @@ static void expand_expr_full (const char *expr, expand_buf *new_expr, int depth,
 		//skip if there's no name, or if it's a macro with arguments
 		if (name_len > 0) {
 			name = strndup (expr, name_len);
-			
+
 			//if it's a define, recursively expand its contents
 			if ((define = search_defines (name, search_local)) && define->contents != NULL) {
 				list_t *args = NULL;
@@ -826,18 +826,18 @@ static void expand_expr_full (const char *expr, expand_buf *new_expr, int depth,
 				expand_expr_full (define->contents, new_expr, depth + 1, search_local);
 				remove_arg_set (args);
 				if (error_occurred) return;
-			//if it's a label, write its value
+				//if it's a label, write its value
 			} else if ((label = search_labels (name))) {
 				char buf[10];
 				snprintf (buf, sizeof(buf), "%d", label->value);
 				eb_append (new_expr, buf, -1);
 				expr += name_len;
-			//otherwise, it might be a forward ref, so just write the name
+				//otherwise, it might be a forward ref, so just write the name
 			} else {
 				eb_append (new_expr, name, name_len);
 				expr += name_len;
 			}
-			
+
 			free (name);
 		} else if (*expr) {
 			//if it can't be a name, just write the next char and move on
@@ -871,18 +871,18 @@ char *expand_expr (const char *expr, bool search_local) {
 
 
 /*
- * Does a checked memory allocation,
- * shows an error and exits if out
- * of memory
- */
+Does a checked memory allocation,
+shows an error and exits if out
+of memory
+*/
 
 /*void *malloc (size_t size) {
-	void *ret = malloc (size);
-	if (ret != NULL)
-		return ret;
+void *ret = malloc (size);
+if (ret != NULL)
+return ret;
 
-	puts ("Out of memory, exiting");
-	exit (EXIT_FATAL_ERROR);
+puts ("Out of memory, exiting");
+exit (EXIT_FATAL_ERROR);
 }*/
 
 void show_error_prefix(const char *zcif, const int zln) {
@@ -914,7 +914,7 @@ void show_error(const char *text, ...) {
 	show_error_prefix(curr_input_file, line_num);
 
 	va_start(args, text);
-	
+
 	vprintf (text, args); 
 	putchar ('\n');
 #ifdef WIN32
@@ -955,7 +955,7 @@ void show_warning_prefix(const char *zcif, int zln) {
 	set_console_attributes (COLOR_YELLOW);
 	printf ("%s:%d: warning: ", zcif, zln);
 #ifdef WIN32
-		restore_console_attributes(attr);
+	restore_console_attributes(attr);
 #endif
 }
 

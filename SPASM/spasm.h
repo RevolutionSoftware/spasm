@@ -51,8 +51,8 @@ const static unsigned int output_buf_size = 8000000;	//size of output buffer for
 
 //make sure that MAX_PATH is max path length on *nix and Windows
 #if !defined(MAX_PATH) || defined(UNIX_VER)
-	#include <limits.h>
-	#define MAX_PATH PATH_MAX
+#include <limits.h>
+#define MAX_PATH PATH_MAX
 #endif
 
 GLOBAL unsigned int mode;
@@ -88,10 +88,10 @@ GLOBAL char output_text[800000];
 
 //make sure max and min are defined for *nix
 #ifndef max
-	#define max(x,y) (((long) (x) > (long) (y)) ? (x) : (y))
+#define max(x,y) (((long) (x) > (long) (y)) ? (x) : (y))
 #endif
 #ifndef min
-	#define min(x,y) (((long) (x) < (long) (y)) ? (x) : (y))
+#define min(x,y) (((long) (x) < (long) (y)) ? (x) : (y))
 #endif
 
 int run_assembly(void);

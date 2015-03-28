@@ -1,0 +1,11 @@
+ipch/
+**/Win32/
+**/Win64/
+**/*.sdf
+**/*.opensdf
+**/*.exe
+SPASM/SPASM_h.h
+SPASM/SPASM_i.c
+SPASM/SPASM_p.c
+SPASM/SPASM.APS
+SPASM/SPASM.vcxproj.user

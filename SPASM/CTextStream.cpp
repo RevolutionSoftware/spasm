@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#if defined(_ATL_STATIC_REGISTRY)
 #include "CTextStream.h"
 
 #define MAX_PIPE_SIZE (1024 * 1024)
@@ -14,7 +14,7 @@ HRESULT CTextStream::FinalConstruct()
 		//fResult = SetNamedPipeHandleState(hRead, &dwMode, NULL, NULL);
 		fResult = SetStdHandle(STD_OUTPUT_HANDLE, hWrite);
 		m_hRead = hRead;
-		
+
 		stdout->_file = _open_osfhandle((long) hWrite, _O_TEXT);
 
 	}
@@ -114,3 +114,4 @@ STDMETHODIMP CTextStream::Close()
 {
 	return S_FALSE;
 }
+#endif

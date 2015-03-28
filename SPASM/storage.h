@@ -5,8 +5,8 @@
 #include "hash.h"
 
 #if !defined(MAX_PATH) && !defined(_MSC_VER)
-	#include <limits.h>
-	#define MAX_PATH PATH_MAX
+#include <limits.h>
+#define MAX_PATH PATH_MAX
 #endif
 
 #define MAX_ARGS 16	//max number of args macros can have

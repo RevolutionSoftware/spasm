@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef _WINDOWS
-#ifndef _TEST
+#if defined(_ATL_STATIC_REGISTRY)
 #include "SPASM_h.h"
 
 class CSPASMModule : public ATL::CAtlExeModuleT<CSPASMModule>

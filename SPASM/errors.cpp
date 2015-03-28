@@ -110,10 +110,10 @@ int GetSPASMErrorSessionErrorCount(int nSession)
 bool IsSPASMErrorFatal(DWORD dwError)
 {
 	return !(dwError == SPASM_ERR_LOCAL_LABEL_FORWARD_REF ||
-			  dwError == SPASM_ERR_LABEL_NOT_FOUND ||
-			  dwError == SPASM_ERR_INDEX_OFFSET_EXCEEDED ||
-			  dwError == SPASM_ERR_SUCCESS ||
-			  dwError == SPASM_ERR_RECURSION_DEPTH);
+		dwError == SPASM_ERR_LABEL_NOT_FOUND ||
+		dwError == SPASM_ERR_INDEX_OFFSET_EXCEEDED ||
+		dwError == SPASM_ERR_SUCCESS ||
+		dwError == SPASM_ERR_RECURSION_DEPTH);
 }
 
 bool IsSPASMErrorSessionFatal(int nSession)
@@ -225,7 +225,7 @@ void AddSPASMErrorSessionAnnotation(int nSession, LPCTSTR lpszFormat, ...)
 void EndSPASMErrorSession(int nSession)
 {
 	list_t *pList = (list_t *) g_ErrorList;
-	
+
 	list_t *pPrev = NULL, *old_list = NULL;
 	while ((pList != NULL) && ((LPERRORINSTANCE) pList->data)->nSession == nSession)
 	{
@@ -267,12 +267,12 @@ void ClearSPASMErrorSessions()
 void FreeSPASMErrorSessions(void)
 {
 	list_t *pList = (list_t *) g_ErrorList;
-	
+
 	list_t *pNext = NULL;
 	while (pList)
 	{
 		LPERRORINSTANCE lpErr = (LPERRORINSTANCE) pList->data;
-		
+
 		pNext = pList->next;
 		FreeErrorInstance(lpErr);
 		list_free_node(pList);
@@ -280,7 +280,7 @@ void FreeSPASMErrorSessions(void)
 	}
 }
 
-#ifdef _TEST
+#if defined(_ATL_STATIC_REGISTRY)
 DWORD GetLastSPASMError()
 {
 	list_t *pList = (list_t *) g_ErrorList;
@@ -326,7 +326,7 @@ static void SetLastSPASMProblem(DWORD dwErrorCode, bool fIsWarning, va_list vali
 	lpErr->lpszFileName = _strdup(curr_input_file);
 	//lpErr->fSuppressErrors = suppress_errors;
 	lpErr->fIsWarning = fIsWarning;
-	
+
 	TCHAR szBuffer[256];
 	TCHAR szDescription[128] = _T("An error occurred");
 
@@ -360,7 +360,7 @@ static void SetLastSPASMProblem(DWORD dwErrorCode, bool fIsWarning, va_list vali
 
 	//if (suppress_errors == false)
 	//{
-		//PrintSPASMError(lpErr);
+	//PrintSPASMError(lpErr);
 	//}
 }
 

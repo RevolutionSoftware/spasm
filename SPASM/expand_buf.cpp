@@ -6,19 +6,19 @@
 #include "utils.h"
 
 /*
- * Initializes an expandable buffer with a
- * certain starting size
- */
+Initializes an expandable buffer with a
+certain starting size
+*/
 //TODO: the size increase is exponential, I am not sure an init_size is necessary
 expand_buf *eb_init (size_t init_size) {
 	expand_buf_t *new_buf = (expand_buf_t *) malloc (sizeof (expand_buf_t));
-	
+
 	if (init_size == -1) init_size = 64;
-	
+
 	new_buf->start = (unsigned char *) malloc(init_size);
 	new_buf->end = new_buf->start;
 	new_buf->size = init_size;
-	
+
 	return new_buf;
 }
 
@@ -28,19 +28,19 @@ int eb_append(expand_buf_t *eb, const char *text, size_t len) {
 }
 
 /*
- * Writes text to an expandable buffer at
- * offset in buffer (-1 to append), and
- * expands if necessary, given length or
- * -1 to find length internally, returns
- * new offset
- */
+Writes text to an expandable buffer at
+offset in buffer (-1 to append), and
+expands if necessary, given length or
+-1 to find length internally, returns
+new offset
+*/
 
 int eb_insert (expand_buf *buf, int offset, const char *text, size_t length) {
 	unsigned char *ptr;
 
 	if (text == NULL)
 		return offset;
-	
+
 	if (offset == -1)
 		ptr = buf->end;
 	else
@@ -81,10 +81,10 @@ int eb_insert (expand_buf *buf, int offset, const char *text, size_t length) {
 
 
 /*
- * Overwrites text in expandable buffer
- * starting at offset - DOES NOT
- * do length checking!
- */
+Overwrites text in expandable buffer
+starting at offset - DOES NOT
+do length checking!
+*/
 
 void eb_overwrite (expand_buf *buf, int offset, const char *text, size_t length) {
 	unsigned char *ptr = buf->start + offset;
@@ -97,8 +97,8 @@ void eb_overwrite (expand_buf *buf, int offset, const char *text, size_t length)
 
 
 /*
- * Erases text from buffer
- */
+Erases text from buffer
+*/
 
 void eb_erase (expand_buf *buf, int offset, size_t length) {
 	unsigned char *ptr, *curr_ptr;
@@ -111,9 +111,9 @@ void eb_erase (expand_buf *buf, int offset, size_t length) {
 
 
 /*
- * Gets the char from the buffer
- * at given offset
- */
+Gets the char from the buffer
+at given offset
+*/
 
 char eb_get_char (expand_buf *buf, int offset) {
 	return *(buf->start + offset);
@@ -121,9 +121,9 @@ char eb_get_char (expand_buf *buf, int offset) {
 
 
 /*
- * Extracts the contents of the buffer as
- * a zero-terminated string
- */
+Extracts the contents of the buffer as
+a zero-terminated string
+*/
 
 char *eb_extract (expand_buf *buf) {
 	return strndup ((char *) buf->start, buf->end - buf->start);
@@ -131,8 +131,8 @@ char *eb_extract (expand_buf *buf) {
 
 
 /*
- * Frees a buffer
- */
+Frees a buffer
+*/
 
 void eb_free (expand_buf *eb) {
 	free (eb->start);

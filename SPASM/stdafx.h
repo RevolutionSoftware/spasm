@@ -10,6 +10,8 @@
 
 #include "targetver.h"
 
+#if defined(_ATL_STATIC_REGISTRY)
+
 //#define _ATL_APARTMENT_THREADED
 #define _ATL_FREE_THREADED
 
@@ -17,7 +19,7 @@
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 
-#define _ATL_STATIC_REGISTRY
+//#define _ATL_STATIC_REGISTRY
 #define ATL_NO_ASSERT_ON_DESTROY_NONEXISTENT_WINDOW
 
 #include "resource.h"
@@ -28,6 +30,7 @@
 #include <atlsafe.h>
 
 using namespace ATL;
+#endif
 
 
 

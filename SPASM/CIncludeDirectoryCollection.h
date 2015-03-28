@@ -1,4 +1,5 @@
 #pragma once
+#if defined(_ATL_STATIC_REGISTRY)
 struct _CopyVariantFromAdaptBstr {
 	static HRESULT copy(VARIANT* p1, const CAdapt<CComBSTR>* p2) {
 		p1->vt = VT_BSTR;
@@ -68,3 +69,4 @@ public:
 		return S_OK;
 	}
 };
+#endif

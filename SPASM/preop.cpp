@@ -24,9 +24,9 @@ static int nIfLevel = 0;
 static bool fInMacro = false;
 
 /*
- * Handles a preop, returns the new
- * location in the file
- */
+Handles a preop, returns the new
+location in the file
+*/
 
 char *handle_preop (char *ptr) {
 	const char *preops[] = {"define", "include", "if", "ifdef", "ifndef", "else", "elif", "endif",
@@ -63,34 +63,34 @@ char *handle_preop (char *ptr) {
 
 	//otherwise, decide what to do depending on what the preop is
 	switch (preop) {
-		case 0:	//DEFINE
+	case 0:	//DEFINE
 		{
 			ptr = handle_preop_define (ptr);
 			break;
 		}
-		case 1: //INCLUDE
+	case 1: //INCLUDE
 		{
 			ptr = handle_preop_include (ptr);
 			break;
 		}
-		case 2: //IF
+	case 2: //IF
 		{
 			nIfLevel++;
 			ptr = handle_preop_if (ptr);
 			break;
 		}
-		case 6: // ELIF
+	case 6: // ELIF
+		{
+			if (nIfLevel == 0)
 			{
-				if (nIfLevel == 0)
-				{
-					SetLastSPASMError(SPASM_ERR_ELIF_WITHOUT_IF);
-				}
-				int session = StartSPASMErrorSession();
-				ptr = skip_until(ptr, &line_num, 1, "#endif");
-				EndSPASMErrorSession(session);
-				break;
+				SetLastSPASMError(SPASM_ERR_ELIF_WITHOUT_IF);
 			}
-		case 3: //IFDEF
+			int session = StartSPASMErrorSession();
+			ptr = skip_until(ptr, &line_num, 1, "#endif");
+			EndSPASMErrorSession(session);
+			break;
+		}
+	case 3: //IFDEF
 		{
 			char *name_end, *name;
 			define_t *define;
@@ -112,7 +112,7 @@ char *handle_preop (char *ptr) {
 			free (name);
 			break;
 		}
-		case 4: //IFNDEF
+	case 4: //IFNDEF
 		{
 			char *name_end, *name;
 			define_t *define;
@@ -136,7 +136,7 @@ char *handle_preop (char *ptr) {
 			free (name);
 			break;
 		}
-		case 5: //ELSE
+	case 5: //ELSE
 		{
 			if (nIfLevel == 0)
 			{
@@ -150,7 +150,7 @@ char *handle_preop (char *ptr) {
 			}
 			break;
 		}
-		case 7: //ENDIF
+	case 7: //ENDIF
 		{
 			if (nIfLevel > 0)
 			{
@@ -162,8 +162,8 @@ char *handle_preop (char *ptr) {
 			}
 			break;
 		}
-		case 8: //UNDEF
-		case 9: //UNDEFINE
+	case 8: //UNDEF
+	case 9: //UNDEFINE
 		{
 			//get the name of the define to remove
 			if (is_end_of_code_line (ptr)) {
@@ -178,14 +178,14 @@ char *handle_preop (char *ptr) {
 			ptr = name_end;
 			break;
 		}
-		case 10: //COMMENT
+	case 10: //COMMENT
 		{
 			int session = StartSPASMErrorSession();
 			ptr = skip_until (ptr, &line_num, 1, "#endcomment");
 			EndSPASMErrorSession(session);
 			break;
 		}
-		case 12: //MACRO
+	case 12: //MACRO
 		{
 			char *name_end, *macro_end;
 			define_t *macro;
@@ -198,7 +198,7 @@ char *handle_preop (char *ptr) {
 			//get the name
 			name_end = skip_to_name_end (ptr);
 			char *name = strndup(ptr, name_end - ptr);
-			
+
 			macro = add_define (name, NULL);
 
 			name_end = skip_whitespace (name_end);
@@ -214,7 +214,7 @@ char *handle_preop (char *ptr) {
 			line_num++;
 
 			macro->line_num++;
-			
+
 			fInMacro = true;
 			//now find the end of the macro (at the end of the file or an #endmacro directive)
 			//ptr = skip_to_next_line (ptr);
@@ -227,16 +227,16 @@ char *handle_preop (char *ptr) {
 			ptr = macro_end;
 			break;
 		}
-		case 13: //ENDMACRO
-			{
-				break;
-			}
-		case 14: //IMPORT
+	case 13: //ENDMACRO
+		{
+			break;
+		}
+	case 14: //IMPORT
 		{
 			ptr = handle_preop_import (ptr);
 			break;
 		}
-		case 15: //DEFCONT
+	case 15: //DEFCONT
 		{
 			if (last_define == NULL) {
 				SetLastSPASMError(SPASM_ERR_NO_PREVIOUS_DEFINE);
@@ -261,10 +261,10 @@ char *handle_preop (char *ptr) {
 
 
 /*
- * Handles #DEFINE statement,
- * returns pointer to new location
- * in file
- */
+Handles #DEFINE statement,
+returns pointer to new location
+in file
+*/
 
 char *handle_preop_define (const char *ptr) {
 	char *name_end, *value_end;
@@ -283,13 +283,13 @@ char *handle_preop_define (const char *ptr) {
 		return skip_to_line_end (ptr);
 
 	last_define = define;
-	
+
 	if (*name_end == '(') {
 		//it's a simple macro, so get all the arguments
 		ptr = parse_arg_defs (++name_end, define);
 		if (ptr == NULL)
 			return (char *) ptr;
-		
+
 		//then find the function it's defining
 		if (is_end_of_code_line (ptr)) {
 			show_error ("#DEFINE macro is missing function");
@@ -301,7 +301,7 @@ char *handle_preop_define (const char *ptr) {
 		ptr = value_end;
 	} else {
 		//it's a normal define without arguments
-		
+
 		char word[256];
 		const char *eval_ptr = ptr = name_end;
 
@@ -326,9 +326,9 @@ char *handle_preop_define (const char *ptr) {
 				eval_ptr++;
 			ptr = eval_ptr;
 
-		//handle CONCAT, concatenate contents
+			//handle CONCAT, concatenate contents
 		} else if (!strcasecmp (word, "concat")) {
-			
+
 			expand_buf *buffer;
 			int value;
 
@@ -376,7 +376,7 @@ char *handle_preop_define (const char *ptr) {
 			free(contents);
 			eb_free(buffer);
 			ptr = eval_ptr;
-			
+
 		} else {
 			value_end = skip_to_line_end (ptr);
 			set_define (define, ptr, value_end - ptr, redefined);
@@ -388,10 +388,10 @@ char *handle_preop_define (const char *ptr) {
 }
 
 /*
- * Given a filename (which may be surrounded in quotes), return
- * an allocated full path of that filename
- * return NULL if there's no matching path
- */
+Given a filename (which may be surrounded in quotes), return
+an allocated full path of that filename
+return NULL if there's no matching path
+*/
 
 char *full_path (const char *filename) {
 	list_t *dir;
@@ -402,12 +402,12 @@ char *full_path (const char *filename) {
 	if (is_abs_path(filename) && (access (filename, R_OK) == 0))
 #endif
 		return strdup (filename);
-	
+
 	dir = include_dirs;
 	full_path = NULL;
 	do if (dir) {
 		expand_buf_t *eb = eb_init (-1);
-		
+
 		eb_append (eb, (char *) dir->data, -1);
 		eb_append (eb, "/", 1);
 		eb_append (eb, filename, -1);
@@ -428,22 +428,22 @@ char *full_path (const char *filename) {
 	if (access (full_path, R_OK) == 0)
 #endif
 		return full_path;
-	
+
 	free (full_path);
 	return NULL;
 }
 
 /*
- * Handles #INCLUDE statement, returns pointer to new location
- * in file
- */
+Handles #INCLUDE statement, returns pointer to new location
+in file
+*/
 
 static char *handle_preop_include (char *ptr)
 {
 	char name[MAX_PATH], *file_path;
 	FILE *file;
 	char *qs, *alloc_path, *input_contents, *old_input_file, *old_line_start;
-	
+
 	int old_line_num, old_in_macro, old_old_line_num;
 
 	if (is_end_of_code_line (ptr)) {
@@ -454,7 +454,7 @@ static char *handle_preop_include (char *ptr)
 	//get the name of the file to include	
 	read_expr (&ptr, name, "");
 	fix_filename (name);
-	
+
 	qs = skip_whitespace (name);
 	if (*qs == '"') {
 		int i;
@@ -474,7 +474,7 @@ static char *handle_preop_include (char *ptr)
 		if (file_path) free (file_path);
 		return ptr;
 	}
-	
+
 	if (IsFileBitmap(file))
 	{
 		handle_bitmap(file);
@@ -484,7 +484,7 @@ static char *handle_preop_include (char *ptr)
 	else
 	{
 		fclose (file);
-		
+
 		input_contents = get_file_contents (file_path);
 		if (!input_contents) {
 			show_error ("Couldn't open #included file %s", file_path);
@@ -507,7 +507,7 @@ static char *handle_preop_include (char *ptr)
 			snprintf(include_banner, sizeof (include_banner), "Listing for file \"%s\"" NEWLINE, fix_filename (alloc_path));
 			listing_offset = eb_insert (listing_buf, listing_offset, include_banner, strlen (include_banner));
 		}
-		
+
 		//swap out the old curr_X values, and swap in the new ones
 		old_input_file = curr_input_file;
 		old_line_num = line_num;
@@ -534,7 +534,7 @@ static char *handle_preop_include (char *ptr)
 			snprintf(include_banner, sizeof (include_banner), "Listing for file \"%s\"" NEWLINE, curr_input_file);
 			listing_offset = eb_insert (listing_buf, listing_offset, include_banner, strlen (include_banner));
 		}
-		
+
 		//and free up stuff
 		//free (input_contents);
 		release_file_contents(input_contents);
@@ -544,10 +544,10 @@ static char *handle_preop_include (char *ptr)
 
 
 /*
- * Handles #IMPORT statement,
- * returns pointer to new location
- * in file
- */
+Handles #IMPORT statement,
+returns pointer to new location
+in file
+*/
 
 char *handle_preop_import (char *ptr) {
 	FILE *import_file;
@@ -562,7 +562,7 @@ char *handle_preop_import (char *ptr) {
 	//get the name of the file to include	
 	read_expr (&ptr, name, "");
 	fix_filename (name);
-	
+
 	char *qs = skip_whitespace(name);
 	if (*qs == '"') {
 		int i;
@@ -598,10 +598,10 @@ char *handle_preop_import (char *ptr) {
 
 
 /*
- * Handles #IF statement,
- * returns pointer to new
- * location in file
- */
+Handles #IF statement,
+returns pointer to new
+location in file
+*/
 
 char *handle_preop_if (char *ptr) {
 	const char *expr_end;
@@ -616,21 +616,21 @@ char *handle_preop_if (char *ptr) {
 	expr_end = skip_to_code_line_end(ptr);
 
 	expr = strndup (ptr, expr_end - ptr);
-	
+
 	parse_num (expr, &condition);
 	free(expr);
-	
+
 	return do_if ((char *) expr_end, condition);
 }
 
 /*
- * Skips the appropriate
- * parts of #IF blocks,
- * returns pointer to location
- * in file, needs to be passed
- * whether the condition is
- * true or false
- */
+Skips the appropriate
+parts of #IF blocks,
+returns pointer to location
+in file, needs to be passed
+whether the condition is
+true or false
+*/
 
 char *do_if (char *ptr, int condition)
 {
@@ -656,10 +656,10 @@ char *do_if (char *ptr, int condition)
 }
 
 /*
- * Parses argument definitions
- * for a macro, returns a pointer
- * to the end of the args
- */
+Parses argument definitions
+for a macro, returns a pointer
+to the end of the args
+*/
 
 char *parse_arg_defs (const char *ptr, define_t *define) {
 	char *word;
@@ -671,7 +671,7 @@ char *parse_arg_defs (const char *ptr, define_t *define) {
 	{
 		bool is_dup = false;
 		int i;
-		
+
 		for (i = 0; i < define->num_args && !is_dup; i++) {
 			if (case_sensitive) {
 				if (strcmp(word, define->args[i]) == 0)
@@ -685,7 +685,7 @@ char *parse_arg_defs (const char *ptr, define_t *define) {
 		}
 		define->args[define->num_args++] = strdup (word);
 	}
-	
+
 	if (*ptr == ')') ptr++;
 	return (char *) ptr;
 }
@@ -703,7 +703,7 @@ char *skip_until (char *ptr, int *pnLine, int argc, ...)
 	while (*ptr && !error_occurred) {
 		char *line = ptr;
 		char *line_end = skip_to_next_line(ptr);
-		
+
 		do {
 			// Test for nesting (includes #ifdef and #ifndef also)
 			if (line_has_word (line, "#IF", 3)) {
@@ -729,10 +729,10 @@ char *skip_until (char *ptr, int *pnLine, int argc, ...)
 				}
 				va_end(argp);
 			}
-			
+
 			line = next_code_line(line);
 		} while (line < line_end && !error_occurred);
-			
+
 		ptr = line_end;
 		line_num_copy++;
 

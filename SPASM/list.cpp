@@ -6,10 +6,10 @@
 #include "utils.h"
 
 /*
- * Adds a node to the end of the
- * list, returns the new start
- * of the list
- */
+Adds a node to the end of the
+list, returns the new start
+of the list
+*/
 
 EXPORT list_t *list_append (list_t *first_node, void *data) {
 	list_t *curr_node, *new_node;
@@ -31,10 +31,10 @@ EXPORT list_t *list_append (list_t *first_node, void *data) {
 
 
 /*
- * Adds a node to the beginning
- * of the list, returns the new
- * start of the list
- */
+Adds a node to the beginning
+of the list, returns the new
+start of the list
+*/
 
 EXPORT list_t *list_prepend (list_t *first_node, void *data) {
 	list_t *new_node;
@@ -47,24 +47,24 @@ EXPORT list_t *list_prepend (list_t *first_node, void *data) {
 
 
 /*
- * Inserts a node after prev
- */
+Inserts a node after prev
+*/
 EXPORT list_t *list_insert(list_t *prev, void *data) {
 	list_t *new_next;
-	
+
 	new_next = (list_t *) malloc(sizeof(list_t));
 	new_next->data = data;
 	new_next->next = prev->next;
-	
+
 	prev->next = new_next;
 	return new_next;
 }
 
 /*
- * Removes a node from the list,
- * returns the new start of the
- * list
- */
+Removes a node from the list,
+returns the new start of the
+list
+*/
 
 EXPORT list_t *list_remove (list_t *first_node, list_t *remove_node) {
 	list_t *curr_node;
@@ -78,7 +78,7 @@ EXPORT list_t *list_remove (list_t *first_node, list_t *remove_node) {
 	while (curr_node->next != remove_node && curr_node != NULL)
 		curr_node = curr_node->next;
 
-		// then move around pointers
+	// then move around pointers
 	if (curr_node != NULL)	
 		curr_node->next = remove_node->next;
 	return first_node;
@@ -86,8 +86,8 @@ EXPORT list_t *list_remove (list_t *first_node, list_t *remove_node) {
 
 
 /*
- * Frees a list node
- */
+Frees a list node
+*/
 
 EXPORT void list_free_node (list_t *first_node) {
 	if (first_node)
@@ -96,11 +96,11 @@ EXPORT void list_free_node (list_t *first_node) {
 
 
 /*
- * Frees an entire list
- */
+Frees an entire list
+*/
 
 EXPORT void list_free (list_t *curr_node, bool free_data, void (*free_callback)(void *)) {
-	
+
 	while (curr_node) {
 		list_t *next = curr_node->next;
 		if (free_data && curr_node->data)
@@ -114,7 +114,7 @@ EXPORT void list_free (list_t *curr_node, bool free_data, void (*free_callback)(
 				free(curr_node->data);
 			}
 		}
-		
+
 		list_free_node(curr_node);
 		curr_node = next;
 	}

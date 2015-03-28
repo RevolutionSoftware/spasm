@@ -15,20 +15,20 @@ expr_t *expr_list = NULL, *expr_list_tail = NULL;
 output_t *output_list = NULL, *output_list_tail = NULL;
 
 /*
- * Tries to evaluate an expression,
- * if it succeeds writes the data
- * to the output, otherwise writes
- * 0s to fill the space and adds
- * the expression to the list to be
- * parsed in pass two
- */
+Tries to evaluate an expression,
+if it succeeds writes the data
+to the output, otherwise writes
+0s to fill the space and adds
+the expression to the list to be
+parsed in pass two
+*/
 
 void add_pass_two_expr (char *expr, arg_type type, int or_value) {
 	int value;
 
 	//if we're in code counter or stats mode, where we don't need actual expressions, then just skip this crap
 	/*if (mode & MODE_CODE_COUNTER)
-		return;*/
+	return;*/
 
 	if (type == ARG_IX_IY_OFFSET) {
 		//if it's an IX or IY offset, it's allowed to have a + in front of it, so skip that
@@ -71,10 +71,10 @@ void add_pass_two_expr (char *expr, arg_type type, int or_value) {
 			expr_list = new_expr;
 
 		/* Important stuff here: to prevent forward references
-		   combined with changing #defines (either through
-		   redefinition, or with macro arguments, for example),
-		   all #defines need to be fully expanded in the saved
-		   expression for the second pass */
+		combined with changing #defines (either through
+		redefinition, or with macro arguments, for example),
+		all #defines need to be fully expanded in the saved
+		expression for the second pass */
 
 		//store the contents of the expanded expression for the second pass
 		new_expr->expr = expand_expr (expr);
@@ -102,11 +102,11 @@ void add_pass_two_expr (char *expr, arg_type type, int or_value) {
 
 
 /*
- * Adds an expression to be
- * echo'ed on the second pass
- *
- * Allocates a copy
- */
+Adds an expression to be
+echo'ed on the second pass
+*
+Allocates a copy
+*/
 
 void add_pass_two_output (char *expr, output_type type) {
 	output_t *new_output;
@@ -135,12 +135,12 @@ void add_pass_two_output (char *expr, output_type type) {
 
 
 /*
- * Goes through the list of
- * expressions that couldn't
- * be parsed before and evaluates
- * them and writes the values
- * to the output file
- */
+Goes through the list of
+expressions that couldn't
+be parsed before and evaluates
+them and writes the values
+to the output file
+*/
 
 extern unsigned char *output_contents;
 
@@ -177,19 +177,19 @@ void run_second_pass () {
 				listing_offset = expr_list->listing_offset;
 			if (expr_list->type == ARG_RST) {
 				switch (value) {
-					case 0x00:
-					case 0x08:
-					case 0x10:
-					case 0x18:
-					case 0x20:
-					case 0x28:
-					case 0x30:
-					case 0x38:
-						write_arg(value + 0xC7, expr_list->type, expr_list->or_value);
-						break;
-					default:
-						SetLastSPASMError(SPASM_ERR_INVALID_RST_OPERANDS);
-						break;
+				case 0x00:
+				case 0x08:
+				case 0x10:
+				case 0x18:
+				case 0x20:
+				case 0x28:
+				case 0x30:
+				case 0x38:
+					write_arg(value + 0xC7, expr_list->type, expr_list->or_value);
+					break;
+				default:
+					SetLastSPASMError(SPASM_ERR_INVALID_RST_OPERANDS);
+					break;
 				}
 			} else {
 				out_ptr = expr_list->out_ptr;
@@ -219,18 +219,18 @@ void run_second_pass () {
 #endif
 
 		switch (output_list->type) {
-			case OUTPUT_ECHO:
-				{
-					WORD orig_attributes = save_console_attributes();
-					set_console_attributes (COLOR_GREEN);
-					int session = StartSPASMErrorSession();
-					parse_emit_string (output_list->expr, ES_ECHO, stdout);
-					ReplaySPASMErrorSession(session);
-					EndSPASMErrorSession(session);
-					restore_console_attributes(orig_attributes);
-					break;
-				}
-			case OUTPUT_SHOW:
+		case OUTPUT_ECHO:
+			{
+				WORD orig_attributes = save_console_attributes();
+				set_console_attributes (COLOR_GREEN);
+				int session = StartSPASMErrorSession();
+				parse_emit_string (output_list->expr, ES_ECHO, stdout);
+				ReplaySPASMErrorSession(session);
+				EndSPASMErrorSession(session);
+				restore_console_attributes(orig_attributes);
+				break;
+			}
+		case OUTPUT_SHOW:
 			{
 				define_t *define;
 				if (!(define = search_defines (output_list->expr)))
@@ -256,71 +256,71 @@ void run_second_pass () {
 
 
 /*
- * Writes an argument
- * directly to the file,
- * OR'ing it with a value
- * for bit numbers
- */
+Writes an argument
+directly to the file,
+OR'ing it with a value
+for bit numbers
+*/
 
 void write_arg (int value, arg_type type, int or_value) {
 
 	switch (type) {
-		case ARG_NUM_8:
-			if (value < -128 || value > 255)
-			{
-				SetLastSPASMWarning(SPASM_WARN_TRUNCATING_8);
-			}
-			write_out(value & 0xFF);
+	case ARG_NUM_8:
+		if (value < -128 || value > 255)
+		{
+			SetLastSPASMWarning(SPASM_WARN_TRUNCATING_8);
+		}
+		write_out(value & 0xFF);
+		break;
+	case ARG_RST: {
+		switch (value) {
+		case 0x00:
+		case 0x08:
+		case 0x10:
+		case 0x18:
+		case 0x20:
+		case 0x28:
+		case 0x30:
+		case 0x38:
+			write_out(value + 0xC7);
 			break;
-		case ARG_RST: {
-			switch (value) {
-				case 0x00:
-				case 0x08:
-				case 0x10:
-				case 0x18:
-				case 0x20:
-				case 0x28:
-				case 0x30:
-				case 0x38:
-					write_out(value + 0xC7);
-					break;
-				default:
-					SetLastSPASMError(SPASM_ERR_INVALID_RST_OPERANDS);
-					break;
-			}
+		default:
+			SetLastSPASMError(SPASM_ERR_INVALID_RST_OPERANDS);
 			break;
 		}
-		case ARG_NUM_16:
-			//no range checking for 16 bits, as higher bits of labels are used to store page info
-			write_out (value & 0xFF);
-			write_out ((value >> 8) & 0xFF);
-			break;
-		case ARG_ADDR_OFFSET:
-			value &= 0xFFFF;
-			value -= ((program_counter & 0xFFFF)+ 2);
-			
-			if (value < -128 || value > 127)
-			{
-				SetLastSPASMError(SPASM_ERR_JUMP_EXCEEDED, value);
-				value = 0;
-			}
-			write_out (value & 0xFF);
-			break;
-		case ARG_IX_IY_OFFSET:
-			if (value > 127 || value < -128)
-			{
-				SetLastSPASMError(SPASM_ERR_INDEX_OFFSET_EXCEEDED, value);
-				value = 0;
-			}
-			write_out (value & 0xFF);
-			break;
-		case ARG_BIT_NUM:
-			if (value < 0 || value > 7) {
-				show_error ("Bit number can only range from 0 to 7");
-				value = 0;
-			}
-			write_out (((value & 0x07) << 3) | or_value);
-			break;
+		break;
+				  }
+	case ARG_NUM_16:
+		//no range checking for 16 bits, as higher bits of labels are used to store page info
+		write_out (value & 0xFF);
+		write_out ((value >> 8) & 0xFF);
+		break;
+	case ARG_ADDR_OFFSET:
+		value &= 0xFFFF;
+		value -= ((program_counter & 0xFFFF)+ 2);
+
+		if (value < -128 || value > 127)
+		{
+			SetLastSPASMError(SPASM_ERR_JUMP_EXCEEDED, value);
+			value = 0;
+		}
+		write_out (value & 0xFF);
+		break;
+	case ARG_IX_IY_OFFSET:
+		if (value > 127 || value < -128)
+		{
+			SetLastSPASMError(SPASM_ERR_INDEX_OFFSET_EXCEEDED, value);
+			value = 0;
+		}
+		write_out (value & 0xFF);
+		break;
+	case ARG_BIT_NUM:
+		if (value < 0 || value > 7) {
+			show_error ("Bit number can only range from 0 to 7");
+			value = 0;
+		}
+		write_out (((value & 0x07) << 3) | or_value);
+		break;
 	}
 }
 
